@@ -11,6 +11,7 @@
     <link href="{{ asset('assets/css/baj-wam.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
+
 <body class="public-body">
     <nav class="navbar navbar-expand-lg public-navbar sticky-top">
         <div class="container">

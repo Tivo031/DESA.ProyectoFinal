@@ -270,14 +270,37 @@ a:hover {
     font-size: 0.88rem;
 }
 
-.stat-purple { color: var(--bw-purple); }
-.stat-purple .stat-icon { background: rgba(102, 80, 154, 0.12); }
-.stat-plum { color: var(--bw-plum); }
-.stat-plum .stat-icon { background: rgba(142, 59, 108, 0.12); }
-.stat-green { color: var(--bw-green); }
-.stat-green .stat-icon { background: rgba(78, 99, 54, 0.13); }
-.stat-lime { color: #97992b; }
-.stat-lime .stat-icon { background: rgba(209, 211, 101, 0.2); }
+.stat-purple {
+    color: var(--bw-purple);
+}
+
+.stat-purple .stat-icon {
+    background: rgba(102, 80, 154, 0.12);
+}
+
+.stat-plum {
+    color: var(--bw-plum);
+}
+
+.stat-plum .stat-icon {
+    background: rgba(142, 59, 108, 0.12);
+}
+
+.stat-green {
+    color: var(--bw-green);
+}
+
+.stat-green .stat-icon {
+    background: rgba(78, 99, 54, 0.13);
+}
+
+.stat-lime {
+    color: #97992b;
+}
+
+.stat-lime .stat-icon {
+    background: rgba(209, 211, 101, 0.2);
+}
 
 /* ---------- Tablas y formularios ---------- */
 .table-responsive {
@@ -288,7 +311,7 @@ a:hover {
     margin-bottom: 0;
 }
 
-.table > :not(caption) > * > * {
+.table> :not(caption)>*>* {
     padding: 0.88rem 1rem;
     border-bottom-color: #eceee8;
     vertical-align: middle;
@@ -334,10 +357,17 @@ a:hover {
 
 /* ---------- Estados ---------- */
 .badge-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    
     padding: 0.45rem 0.65rem;
     border-radius: 999px;
     font-size: 0.73rem;
     font-weight: 800;
+
+    white-space: nowrap;
+    min-width: 75px;
 }
 
 .status-confirmada,
@@ -602,13 +632,33 @@ a:hover {
 }
 
 /* ---------- Utilidades ---------- */
-.text-brand { color: var(--bw-purple) !important; }
-.text-plum { color: var(--bw-plum) !important; }
-.text-green-bw { color: var(--bw-green) !important; }
-.bg-soft-purple { background: rgba(102, 80, 154, 0.08) !important; }
-.bg-soft-green { background: rgba(78, 99, 54, 0.08) !important; }
-.bg-soft-lime { background: rgba(209, 211, 101, 0.18) !important; }
-.border-bw { border-color: var(--bw-border) !important; }
+.text-brand {
+    color: var(--bw-purple) !important;
+}
+
+.text-plum {
+    color: var(--bw-plum) !important;
+}
+
+.text-green-bw {
+    color: var(--bw-green) !important;
+}
+
+.bg-soft-purple {
+    background: rgba(102, 80, 154, 0.08) !important;
+}
+
+.bg-soft-green {
+    background: rgba(78, 99, 54, 0.08) !important;
+}
+
+.bg-soft-lime {
+    background: rgba(209, 211, 101, 0.18) !important;
+}
+
+.border-bw {
+    border-color: var(--bw-border) !important;
+}
 
 .empty-state {
     padding: 3rem 1rem;
@@ -665,7 +715,7 @@ a:hover {
         padding: 0.95rem;
     }
 
-    .table > :not(caption) > * > * {
+    .table> :not(caption)>*>* {
         padding: 0.78rem 0.72rem;
     }
 
@@ -1005,7 +1055,7 @@ textarea.form-control {
         flex-direction: column;
     }
 
-    .form-action-bar > div:last-child {
+    .form-action-bar>div:last-child {
         justify-content: flex-end;
     }
 }
