@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,6 +12,7 @@
     <link href="{{ asset('assets/css/baj-wam.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
+
 <body>
     <div class="app-shell">
         <aside class="app-sidebar d-none d-lg-flex">
@@ -43,7 +45,8 @@
 
     <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
         <div class="offcanvas-header border-bottom">
-            <img src="{{ asset('assets/img/logo-baj-wam.png') }}" alt="BAJ WAM" style="width: 110px; height: 78px; object-fit: contain;">
+            <img src="{{ asset('assets/img/logo-baj-wam.png') }}" alt="BAJ WAM"
+                style="width: 110px; height: 78px; object-fit: contain;">
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
         </div>
         <div class="offcanvas-body p-3">
@@ -53,6 +56,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('assets/js/baj-wam.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('assets/js/alertas.js') }}"></script>
     @stack('scripts')
+
 </body>
+
 </html>

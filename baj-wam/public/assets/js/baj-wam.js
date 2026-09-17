@@ -1,19 +1,78 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Confirmación simple para botones de eliminación.
-    document.querySelectorAll('[data-confirm-delete]').forEach((button) => {
-        button.addEventListener('click', (event) => {
-            const message = button.dataset.confirmDelete || '¿Deseas eliminar este registro?';
-            if (!window.confirm(message)) {
-                event.preventDefault();
-            }
-        });
-    });
+document.addEventListener("DOMContentLoaded", () => {
 
-    // Oculta automáticamente los mensajes temporales después de 5 segundos.
-    document.querySelectorAll('[data-auto-dismiss]').forEach((alert) => {
-        window.setTimeout(() => {
-            const instance = bootstrap.Alert.getOrCreateInstance(alert);
-            instance.close();
-        }, 5000);
-    });
+    // CONFIRMACIÓN DE DESACTIVACIÓN
+
+    document
+        .querySelectorAll("[data-confirm-delete]")
+        .forEach((boton) => {
+
+            boton.addEventListener(
+                "click",
+                async (evento) => {
+
+                    evento.preventDefault();
+
+                    const formulario =
+                        boton.closest("form");
+
+                    if (!formulario) {
+                        return;
+                    }
+
+                    const mensaje =
+                        boton.dataset.confirmDelete ||
+                        "¿Deseas desactivar este registro?";
+
+                    const resultado = await Swal.fire({
+
+                        title: "¿Desactivar registro?",
+
+                        text: mensaje,
+
+                        icon: "warning",
+
+                        showCancelButton: true,
+
+                        confirmButtonColor: "#dc3545",
+
+                        cancelButtonColor: "#6c757d",
+
+                        confirmButtonText:
+                            "Sí, desactivar",
+
+                        cancelButtonText:
+                            "Cancelar",
+
+                        reverseButtons: true,
+
+                    });
+
+                    if (resultado.isConfirmed) {
+                        formulario.submit();
+                    }
+                }
+            );
+
+        });
+
+
+    // MENSAJES TEMPORALES
+
+    document
+        .querySelectorAll("[data-auto-dismiss]")
+        .forEach((alerta) => {
+
+            window.setTimeout(() => {
+
+                const instancia =
+                    bootstrap.Alert.getOrCreateInstance(
+                        alerta
+                    );
+
+                instancia.close();
+
+            }, 5000);
+
+        });
+
 });

@@ -22,9 +22,16 @@
     <a class="nav-link {{ request()->is('inventario*') ? 'active' : '' }}" href="{{ url('/inventario') }}">
         <i class="bi bi-box-seam-fill"></i><span>Inventario</span>
     </a>
+    @can('usuarios.ver')
+        <div class="sidebar-label">Administración</div>
 
-    <div class="sidebar-label">Administración</div>
-    <a class="nav-link {{ request()->is('usuarios*') ? 'active' : '' }}" href="{{ url('/usuarios') }}">
-        <i class="bi bi-person-gear"></i><span>Usuarios</span>
-    </a>
+        <a class="nav-link {{ request()->is('usuarios*') ? 'active' : '' }}" href="{{ url('/usuarios') }}">
+            <i class="bi bi-person-gear"></i><span>Usuarios</span>
+        </a>
+    @endcan
+    @can('roles.ver')
+        <a class="nav-link {{ request()->is('roles.*') ? 'active' : '' }}" href="{{ url('/roles') }}">
+            <i class="bi bi-shield-lock"></i><span>Roles</span>
+        </a>
+    @endcan
 </nav>
