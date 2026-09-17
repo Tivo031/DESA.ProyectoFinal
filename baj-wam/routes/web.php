@@ -1,9 +1,9 @@
 <?php
-
-use App\Http\Controllers\CambioPasswordController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UsuarioController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CambioPasswordController;
+use App\Http\Controllers\RolController;
 
 
 // PÁGINA PÚBLICA
@@ -66,10 +66,7 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
 
         // USUARIOS
 
-        Route::post(
-            '/usuarios/{usuario}/restablecer-password',
-            [UsuarioController::class, 'restablecerPassword']
-        )
+        Route::post('/usuarios/{usuario}/restablecer-password', [UsuarioController::class, 'restablecerPassword'])
             ->middleware('can:usuarios.restablecer_password')
             ->name('usuarios.restablecer-password');
 
@@ -100,6 +97,32 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])
             ->middleware('can:usuarios.desactivar')
             ->name('usuarios.destroy');
+
+        // ROLES
+
+        Route::get('/roles', [RolController::class, 'index'])
+            ->middleware('can:roles.ver')
+            ->name('roles.index');
+
+        Route::get('/roles/create', [RolController::class, 'create'])
+            ->middleware('can:roles.crear')
+            ->name('roles.create');
+
+        Route::post('/roles', [RolController::class, 'store'])
+            ->middleware('can:roles.crear')
+            ->name('roles.store');
+
+        Route::get('/roles/{id}/edit', [RolController::class, 'edit'])
+            ->middleware('can:roles.editar')
+            ->name('roles.edit');
+
+        Route::put('/roles/{id}', [RolController::class, 'update'])
+            ->middleware('can:roles.editar')
+            ->name('roles.update');
+
+        Route::delete('/roles/{id}', [RolController::class, 'destroy'])
+            ->middleware('can:roles.desactivar')
+            ->name('roles.destroy');
 
         // TEMPORAL MIENTRAS IMPLEMENTAMOS EDICIÓN
 

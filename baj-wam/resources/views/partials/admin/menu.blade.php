@@ -29,4 +29,9 @@
             <i class="bi bi-person-gear"></i><span>Usuarios</span>
         </a>
     @endcan
+    @can('roles.ver')
+        <a class="nav-link {{ request()->is('roles.*') ? 'active' : '' }}" href="{{ url('/roles') }}">
+            <i class="bi bi-shield-lock"></i><span>Roles</span>
+        </a>
+    @endcan
 </nav>

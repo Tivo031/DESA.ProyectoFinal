@@ -10,19 +10,36 @@ class RolSeeder extends Seeder
     public function run(): void
     {
         $roles = [
-            'ADMINISTRADOR',
-            'RECEPCION',
-            'ESPECIALISTA',
-            'INVENTARIO',
+            [
+                'nombre' => 'ADMINISTRADOR',
+                'descripcion' => 'Acceso completo al sistema',
+                'activo' => true,
+            ],
+            [
+                'nombre' => 'RECEPCION',
+                'descripcion' => 'Gestión de pacientes y citas',
+                'activo' => true,
+            ],
+            [
+                'nombre' => 'ESPECIALISTA',
+                'descripcion' => 'Registro de consultas y tratamientos',
+                'activo' => true,
+            ],
+            [
+                'nombre' => 'INVENTARIO',
+                'descripcion' => 'Gestión de productos e inventario',
+                'activo' => true,
+            ],
         ];
 
-        foreach ($roles as $nombre) {
+        foreach ($roles as $rol) {
             DB::table('roles')->updateOrInsert(
                 [
-                    'nombre' => $nombre,
+                    'nombre' => $rol['nombre'],
                 ],
                 [
-                    'nombre' => $nombre,
+                    'descripcion' => $rol['descripcion'],
+                    'activo' => $rol['activo'],
                 ]
             );
         }

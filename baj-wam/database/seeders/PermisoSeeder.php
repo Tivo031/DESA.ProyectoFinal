@@ -57,7 +57,7 @@ class PermisoSeeder extends Seeder
                     'activo' => true,
                 ],
 
-                // ROLES
+                    // ROLES
                 [
                     'codigo' => 'roles.ver',
                     'nombre' => 'Ver roles',
@@ -66,14 +66,36 @@ class PermisoSeeder extends Seeder
                     'activo' => true,
                 ],
                 [
+                    'codigo' => 'roles.crear',
+                    'nombre' => 'Crear roles',
+                    'modulo' => 'ROLES',
+                    'descripcion' => 'Permite registrar nuevos roles',
+                    'activo' => true,
+                ],
+                [
+                    'codigo' => 'roles.editar',
+                    'nombre' => 'Editar roles',
+                    'modulo' => 'ROLES',
+                    'descripcion' => 'Permite modificar roles',
+                    'activo' => true,
+                ],
+                [
+                    'codigo' => 'roles.desactivar',
+                    'nombre' => 'Desactivar roles',
+                    'modulo' => 'ROLES',
+                    'descripcion' => 'Permite activar o desactivar roles',
+                    'activo' => true,
+                ],
+                [
                     'codigo' => 'roles.permisos',
                     'nombre' => 'Administrar permisos',
                     'modulo' => 'ROLES',
-                    'descripcion' => 'Permite asignar permisos a los roles',
+                    'descripcion' => 'Permite asignar y quitar permisos a los roles',
                     'activo' => true,
                 ],
 
                 // PACIENTES
+                
                 [
                     'codigo' => 'pacientes.ver',
                     'nombre' => 'Ver pacientes',
