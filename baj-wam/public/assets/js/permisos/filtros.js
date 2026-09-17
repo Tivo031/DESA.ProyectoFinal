@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     const formulario =
-        document.getElementById('form-filtros-usuarios');
+        document.getElementById('form-filtros-permisos');
 
     const buscar =
         document.getElementById('buscar');
 
-    const rol =
-        document.getElementById('rol');
+    const modulo =
+        document.getElementById('modulo');
 
     const estado =
         document.getElementById('estado');
@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function aplicarFiltros() {
         formulario.submit();
     }
-
 
     // BÚSQUEDA
 
@@ -46,16 +45,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // MÓDULO
 
-    // ROL
-
-    if (rol) {
-        rol.addEventListener(
+    if (modulo) {
+        modulo.addEventListener(
             'change',
             aplicarFiltros
         );
     }
-
 
     // ESTADO
 

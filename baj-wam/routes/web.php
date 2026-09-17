@@ -4,13 +4,12 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\CambioPasswordController;
 use App\Http\Controllers\RolController;
-
+use App\Http\Controllers\PermisoController;
 
 // PÁGINA PÚBLICA
 
 Route::view('/', 'public.inicio')
     ->name('inicio');
-
 
 // LOGIN
 
@@ -23,7 +22,6 @@ Route::middleware('guest')->group(function () {
         ->name('login.autenticar');
 });
 
-
 // RUTAS PROTEGIDAS
 
 Route::middleware(['auth', 'usuario.activo'])->group(function () {
@@ -32,7 +30,6 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
 
     Route::post('/logout', [LoginController::class, 'cerrarSesion'])
         ->name('logout');
-
 
     // CAMBIO OBLIGATORIO DE CONTRASEÑA
 
@@ -46,7 +43,6 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         [CambioPasswordController::class, 'update']
     )->name('password.actualizar');
 
-
     // SISTEMA
 
     Route::middleware('password.cambio')->group(function () {
@@ -56,13 +52,11 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::get('/perfil', [UsuarioController::class, 'perfil'])
             ->name('perfil');
 
-
         // DASHBOARD
 
         Route::view('/dashboard', 'dashboard.index')
             ->middleware('can:dashboard.ver')
             ->name('dashboard');
-
 
         // USUARIOS
 
@@ -124,12 +118,37 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->middleware('can:roles.desactivar')
             ->name('roles.destroy');
 
+        //PERMISOS
+
+        Route::get('/permisos', [PermisoController::class, 'index'])
+            ->middleware('can:permisos.ver')
+            ->name('permisos.index');
+
+        Route::get('/permisos/create', [PermisoController::class, 'create'])
+            ->middleware('can:permisos.crear')
+            ->name('permisos.create');
+
+        Route::post('/permisos', [PermisoController::class, 'store'])
+            ->middleware('can:permisos.crear')
+            ->name('permisos.store');
+
+        Route::get('/permisos/{id}/edit', [PermisoController::class, 'edit'])
+            ->middleware('can:permisos.editar')
+            ->name('permisos.edit');
+
+        Route::put('/permisos/{id}', [PermisoController::class, 'update'])
+            ->middleware('can:permisos.editar')
+            ->name('permisos.update');
+
+        Route::delete('/permisos/{id}', [PermisoController::class, 'destroy'])
+            ->middleware('can:permisos.desactivar')
+            ->name('permisos.destroy');
+
         // TEMPORAL MIENTRAS IMPLEMENTAMOS EDICIÓN
 
         Route::view('/usuarios/1/edit', 'usuarios.edit')
             ->middleware('can:usuarios.editar')
             ->name('usuarios.edit');
-
 
         // PACIENTES - TEMPORALES
 
@@ -145,7 +164,6 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::view('/pacientes/1/edit', 'pacientes.edit')
             ->name('pacientes.edit');
 
-
         // CITAS - TEMPORALES
 
         Route::view('/citas', 'citas.index')
@@ -159,7 +177,6 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
 
         Route::view('/citas/1/edit', 'citas.edit')
             ->name('citas.edit');
-
 
         // CONSULTAS - TEMPORALES
 
@@ -175,7 +192,6 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::view('/consultas/1/edit', 'consultas.edit')
             ->name('consultas.edit');
 
-
         // PRODUCTOS - TEMPORALES
 
         Route::view('/productos', 'productos.index')
@@ -189,7 +205,6 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
 
         Route::view('/productos/1/edit', 'productos.edit')
             ->name('productos.edit');
-
 
         // INVENTARIO - TEMPORAL
 

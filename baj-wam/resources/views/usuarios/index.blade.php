@@ -112,7 +112,8 @@
             </form>
         </div>
 
-        <div class="table-responsive d-none d-lg-block">
+        {{-- ESCRITORIO / TABLET --}}
+        <div class="table-responsive d-none d-md-block">
             <table class="table align-middle">
                 <thead>
                     <tr>
@@ -208,7 +209,8 @@
             </table>
         </div>
 
-        <div class="d-lg-none p-3">
+        {{-- MÓVIL --}}
+        <div class="d-md-none p-3">
             @forelse ($usuarios as $usuario)
                 @php
                     $id = $valor($usuario, 'id_usuario');
@@ -323,26 +325,27 @@
 
                         </div>
                     </div>
+                </div>
 
-                @empty
+            @empty
 
-                    <div class="empty-state">
-                        <i class="bi bi-person-x"></i>
+                <div class="empty-state">
+                    <i class="bi bi-person-x"></i>
 
-                        <div class="fw-bold mb-1">
-                            No se encontraron usuarios
-                        </div>
-
-                        <div class="small">
-                            Prueba con otros filtros o registra una nueva cuenta.
-                        </div>
+                    <div class="fw-bold mb-1">
+                        No se encontraron usuarios
                     </div>
+
+                    <div class="small">
+                        Prueba con otros filtros o registra una nueva cuenta.
+                    </div>
+                </div>
             @endforelse
         </div>
 
-        @if (is_object($usuarios) && method_exists($usuarios, 'links'))
+        @if ($usuarios->hasPages())
             <div class="card-footer bg-white border-0 px-3 py-3">
-                {{ $usuarios->withQueryString()->links() }}
+                {{ $usuarios->links() }}
             </div>
         @endif
     </div>

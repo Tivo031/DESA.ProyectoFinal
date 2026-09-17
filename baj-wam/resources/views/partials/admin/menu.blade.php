@@ -34,4 +34,12 @@
             <i class="bi bi-shield-lock"></i><span>Roles</span>
         </a>
     @endcan
+    @can('permisos.ver')
+        <a class="nav-link {{ request()->is('permisos*') ? 'active' : '' }}" href="{{ url('/permisos') }}">
+
+            <i class="bi bi-key-fill"></i>
+            <span>Permisos</span>
+
+        </a>
+    @endcan
 </nav>
