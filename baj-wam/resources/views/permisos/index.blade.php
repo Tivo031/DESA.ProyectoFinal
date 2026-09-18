@@ -1,101 +1,116 @@
 @extends('layouts.admin')
 
-@section('title', 'Roles')
+@section('title', 'Permisos')
 
 @section('content')
 
     <div class="page-header">
+
         <div>
             <div class="page-eyebrow">
                 Administración
             </div>
 
             <h1 class="page-title">
-                Roles
+                Permisos
             </h1>
 
             <p class="page-subtitle">
-                Administra los roles y permisos del sistema.
+                Administra los permisos disponibles en el sistema.
             </p>
         </div>
 
-        @can('roles.crear')
-            <a href="{{ url('/roles/create') }}" class="btn btn-brand">
+        @can('permisos.crear')
+            <a href="{{ url('/permisos/create') }}" class="btn btn-brand">
+
                 <i class="bi bi-plus-circle-fill me-2"></i>
-                Nuevo rol
+                Nuevo permiso
             </a>
         @endcan
+
     </div>
 
 
     <div class="row g-3 mb-4">
 
         <div class="col-12 col-sm-4">
+
             <div class="card bw-card mini-stat-card h-100">
+
                 <div class="card-body d-flex align-items-center gap-3">
 
                     <span class="mini-stat-icon bg-soft-purple text-brand">
-                        <i class="bi bi-shield-fill"></i>
+                        <i class="bi bi-key-fill"></i>
                     </span>
 
                     <div>
                         <div class="mini-stat-value">
-                            {{ $resumenRoles['total'] }}
+                            {{ $resumenPermisos['total'] }}
                         </div>
 
                         <div class="mini-stat-label">
-                            Roles registrados
+                            Permisos registrados
                         </div>
                     </div>
 
                 </div>
+
             </div>
+
         </div>
 
 
         <div class="col-6 col-sm-4">
+
             <div class="card bw-card mini-stat-card h-100">
+
                 <div class="card-body d-flex align-items-center gap-3">
 
                     <span class="mini-stat-icon bg-soft-green text-green-bw">
-                        <i class="bi bi-shield-check"></i>
+                        <i class="bi bi-check-circle-fill"></i>
                     </span>
 
                     <div>
                         <div class="mini-stat-value">
-                            {{ $resumenRoles['activos'] }}
+                            {{ $resumenPermisos['activos'] }}
                         </div>
 
                         <div class="mini-stat-label">
-                            Roles activos
+                            Permisos activos
                         </div>
                     </div>
 
                 </div>
+
             </div>
+
         </div>
 
 
         <div class="col-6 col-sm-4">
+
             <div class="card bw-card mini-stat-card h-100">
+
                 <div class="card-body d-flex align-items-center gap-3">
 
                     <span class="mini-stat-icon bg-soft-danger text-danger">
-                        <i class="bi bi-shield-x"></i>
+                        <i class="bi bi-x-circle-fill"></i>
                     </span>
 
                     <div>
                         <div class="mini-stat-value">
-                            {{ $resumenRoles['inactivos'] }}
+                            {{ $resumenPermisos['inactivos'] }}
                         </div>
 
                         <div class="mini-stat-label">
-                            Roles inactivos
+                            Permisos inactivos
                         </div>
                     </div>
 
                 </div>
+
             </div>
+
         </div>
 
     </div>
@@ -105,9 +120,10 @@
 
         <div class="card-header">
 
-            <form id="form-filtros-roles" method="GET" action="{{ route('roles.index') }}" class="row g-2">
+            <form id="form-filtros-permisos" method="GET" action="{{ url('/permisos') }}" class="row g-2 align-items-end"
+                autocomplete="off">
 
-                <div class="col-12 col-md-8">
+                <div class="col-12 col-lg-5">
 
                     <div class="input-group">
 
@@ -115,18 +131,40 @@
                             <i class="bi bi-search"></i>
                         </span>
 
-                        <input id="buscar" type="search" name="buscar" class="form-control"
-                            value="{{ request('buscar') }}" placeholder="Buscar por nombre o descripción">
+                        <input class="form-control" id="buscar" type="search" name="buscar"
+                            value="{{ request('buscar') }}" placeholder="Buscar por código, nombre o descripción"
+                            autocomplete="new-password">
 
                     </div>
 
                 </div>
 
 
-                <div class="col-8 col-md-3">
+                <div class="col-6 col-md-4 col-lg-3">
+
+                    <select class="form-select" id="modulo" name="modulo">
+
+                        <option value="">
+                            Todos los módulos
+                        </option>
+
+                        @foreach ($modulos as $modulo)
+                            <option value="{{ $modulo }}" @selected(request('modulo') === $modulo)>
+
+                                {{ $modulo }}
+
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                </div>
 
 
-                    <select id="estado" name="estado" class="form-select">
+                <div class="col-6 col-md-4 col-lg-2">
+
+                    <select class="form-select" id="estado" name="estado">
+
                         <option value="">
                             Todos
                         </option>
@@ -144,11 +182,12 @@
                 </div>
 
 
-                <div class="col-4 col-md-1">
+                <div class="col-12 col-md-4 col-lg-2">
 
-                    <a href="{{ route('roles.index') }}" class="btn btn-light border w-100" title="Limpiar filtros">
+                    <a class="btn btn-light border w-100" href="{{ url('/permisos') }}">
 
-                        <i class="bi bi-arrow-counterclockwise"></i>
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Limpiar
 
                     </a>
 
@@ -167,10 +206,10 @@
 
                 <thead>
                     <tr>
-                        <th>Rol</th>
+                        <th>Permiso</th>
+                        <th>Código</th>
+                        <th>Módulo</th>
                         <th>Descripción</th>
-                        <th>Usuarios</th>
-                        <th>Permisos</th>
                         <th class="text-nowrap" style="min-width: 110px;">Estado</th>
                         <th class="text-end">Acciones</th>
                     </tr>
@@ -178,29 +217,33 @@
 
                 <tbody>
 
-                    @forelse ($roles as $rol)
+                    @forelse ($permisos as $permiso)
 
                         <tr>
 
                             <td class="fw-bold">
-                                {{ $rol->nombre }}
+                                {{ $permiso->nombre }}
                             </td>
 
                             <td>
-                                {{ $rol->descripcion ?: 'Sin descripción' }}
+                                <code>
+                                    {{ $permiso->codigo }}
+                                </code>
                             </td>
 
                             <td>
-                                {{ $rol->usuarios_count }}
+                                <span class="role-badge">
+                                    {{ $permiso->modulo }}
+                                </span>
                             </td>
 
                             <td>
-                                {{ $rol->permisos_count }}
+                                {{ $permiso->descripcion ?: 'Sin descripción' }}
                             </td>
 
                             <td class="text-nowrap" style="min-width: 110px;">
-                                <span class="badge-status {{ $rol->activo ? 'status-activo' : 'status-inactivo' }}">
-                                    {{ $rol->activo ? 'ACTIVO' : 'INACTIVO' }}
+                                <span class="badge-status {{ $permiso->activo ? 'status-activo' : 'status-inactivo' }}">
+                                    {{ $permiso->activo ? 'ACTIVO' : 'INACTIVO' }}
                                 </span>
                             </td>
 
@@ -208,29 +251,29 @@
 
                                 <div class="table-actions justify-content-end">
 
-                                    @can('roles.editar')
+                                    @can('permisos.editar')
                                         <a class="btn btn-sm btn-light border"
-                                            href="{{ url('/roles/' . $rol->id_rol . '/edit') }}" title="Editar rol"
-                                            aria-label="Editar rol">
+                                            href="{{ url('/permisos/' . $permiso->id_permiso . '/edit') }}"
+                                            title="Editar permiso" aria-label="Editar permiso">
 
                                             <i class="bi bi-pencil"></i>
+
                                         </a>
                                     @endcan
 
 
-                                    @can('roles.desactivar')
-                                        @if ($rol->activo)
-                                            <form method="POST" action="{{ url('/roles/' . $rol->id_rol) }}" class="d-inline">
+                                    @can('permisos.desactivar')
+                                        @if ($permiso->activo)
+                                            <form method="POST" action="{{ url('/permisos/' . $permiso->id_permiso) }}"
+                                                class="d-inline">
 
                                                 @csrf
                                                 @method('DELETE')
 
                                                 <button class="btn btn-sm btn-light border text-danger" type="submit"
-                                                    title="Desactivar rol" aria-label="Desactivar rol"
-                                                    data-confirm-delete="¿Deseas desactivar el rol {{ $rol->nombre }}?">
-
-                                                    <i class="bi bi-shield-x"></i>
-
+                                                    title="Desactivar permiso" aria-label="Desactivar permiso"
+                                                    data-confirm-delete="¿Deseas desactivar el permiso {{ $permiso->nombre }}?">
+                                                    <i class="bi bi-x-circle"></i>
                                                 </button>
 
                                             </form>
@@ -246,19 +289,21 @@
                     @empty
 
                         <tr>
+
                             <td colspan="6">
 
                                 <div class="empty-state">
 
-                                    <i class="bi bi-shield-x"></i>
+                                    <i class="bi bi-key"></i>
 
                                     <div class="fw-bold mb-1">
-                                        No se encontraron roles
+                                        No se encontraron permisos
                                     </div>
 
                                 </div>
 
                             </td>
+
                         </tr>
 
                     @endforelse
@@ -274,77 +319,56 @@
 
         <div class="d-lg-none p-3">
 
-            @forelse ($roles as $rol)
+            @forelse ($permisos as $permiso)
 
                 <div class="card bw-card mb-3">
 
                     <div class="card-body">
 
-                        <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                        <div class="d-flex justify-content-between gap-3 mb-3">
 
-                            <div class="d-flex align-items-center gap-3">
+                            <div class="min-w-0">
 
-                                <span class="list-avatar flex-shrink-0">
-                                    {{ strtoupper(mb_substr($rol->nombre, 0, 2)) }}
-                                </span>
+                                <div class="fw-bold text-break">
+                                    {{ $permiso->nombre }}
+                                </div>
 
-                                <div class="min-w-0">
-
-                                    <div class="fw-bold text-break">
-                                        {{ $rol->nombre }}
-                                    </div>
-
-                                    <div class="text-secondary small">
-                                        ID {{ $rol->id_rol }}
-                                    </div>
-
+                                <div class="text-secondary small text-break">
+                                    {{ $permiso->codigo }}
                                 </div>
 
                             </div>
 
-                            <span class="badge-status {{ $rol->activo ? 'status-activo' : 'status-inactivo' }}">
-                                {{ $rol->activo ? 'ACTIVO' : 'INACTIVO' }}
+                            <span class="badge-status {{ $permiso->activo ? 'status-activo' : 'status-inactivo' }}">
+                                {{ $permiso->activo ? 'ACTIVO' : 'INACTIVO' }}
                             </span>
-
-                        </div>
-
-
-                        <div class="mb-3">
-
-                            <div class="text-secondary small">
-                                Descripción
-                            </div>
-
-                            <div class="fw-semibold">
-                                {{ $rol->descripcion ?: 'Sin descripción' }}
-                            </div>
 
                         </div>
 
 
                         <div class="row g-3 small">
 
-                            <div class="col-6">
+                            <div class="col-12">
 
                                 <div class="text-secondary">
-                                    Usuarios
+                                    Módulo
                                 </div>
 
-                                <div class="fw-semibold">
-                                    {{ $rol->usuarios_count }}
-                                </div>
+                                <span class="role-badge">
+                                    {{ $permiso->modulo }}
+                                </span>
 
                             </div>
 
 
-                            <div class="col-6">
+                            <div class="col-12">
 
                                 <div class="text-secondary">
-                                    Permisos
+                                    Descripción
                                 </div>
 
                                 <div class="fw-semibold">
-                                    {{ $rol->permisos_count }}
+                                    {{ $permiso->descripcion ?: 'Sin descripción' }}
                                 </div>
 
                             </div>
@@ -352,13 +376,13 @@
                         </div>
 
 
-                        @canany(['roles.editar', 'roles.desactivar'])
+                        @canany(['permisos.editar', 'permisos.desactivar'])
                             <hr>
 
                             <div class="d-flex gap-2">
 
-                                @can('roles.editar')
-                                    <a href="{{ url('/roles/' . $rol->id_rol . '/edit') }}"
+                                @can('permisos.editar')
+                                    <a href="{{ url('/permisos/' . $permiso->id_permiso . '/edit') }}"
                                         class="btn btn-outline-brand flex-fill">
 
                                         <i class="bi bi-pencil me-1"></i>
@@ -368,17 +392,18 @@
                                 @endcan
 
 
-                                @can('roles.desactivar')
-                                    @if ($rol->activo)
-                                        <form method="POST" action="{{ url('/roles/' . $rol->id_rol) }}" class="flex-fill">
+                                @can('permisos.desactivar')
+                                    @if ($permiso->activo)
+                                        <form method="POST" action="{{ url('/permisos/' . $permiso->id_permiso) }}"
+                                            class="flex-fill">
 
                                             @csrf
                                             @method('DELETE')
 
                                             <button type="submit" class="btn btn-outline-danger w-100"
-                                                data-confirm-delete="¿Deseas desactivar el rol {{ $rol->nombre }}?">
+                                                data-confirm-delete="¿Deseas desactivar el permiso {{ $permiso->nombre }}?">
 
-                                                <i class="bi bi-shield-x me-1"></i>
+                                                <i class="bi bi-x-circle me-1"></i>
                                                 Desactivar
 
                                             </button>
@@ -401,7 +426,7 @@
                     <i class="bi bi-shield-x"></i>
 
                     <div class="fw-bold mb-1">
-                        No se encontraron roles
+                        No se encontraron permisos
                     </div>
 
                 </div>
@@ -411,16 +436,16 @@
         </div>
 
 
-        @if ($roles->hasPages())
+        @if ($permisos->hasPages())
             <div class="card-footer bg-white border-0 px-3 py-3">
-                {{ $roles->links() }}
+                {{ $permisos->links() }}
             </div>
         @endif
-
+            
     </div>
 
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('assets/js/roles/filtros.js') }}"></script>
+    <script src="{{ asset('assets/js/permisos/filtros.js') }}"></script>
 @endpush
