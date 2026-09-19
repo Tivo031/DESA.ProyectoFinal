@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             PermisoSeeder::class,
             RolPermisoSeeder::class,
             UsuarioAdministradorSeeder::class,
+            EstadoCitaSeeder::class,
+            ServicioSeeder::class,
         ]);
     }
 }

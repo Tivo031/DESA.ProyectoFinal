@@ -5,6 +5,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\CambioPasswordController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\PermisoController;
+use App\Http\Controllers\CitaController;
 
 // PÁGINA PÚBLICA
 
@@ -166,7 +167,8 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
 
         // CITAS - TEMPORALES
 
-        Route::view('/citas', 'citas.index')
+        Route::get('/citas', [CitaController::class, 'index'])
+            ->middleware('can:citas.ver')
             ->name('citas.index');
 
         Route::view('/citas/create', 'citas.create')
