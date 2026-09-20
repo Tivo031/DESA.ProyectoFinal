@@ -3,53 +3,47 @@
     $esEdicion = filled(data_get($cita, 'id_cita'));
     $idCita = data_get($cita, 'id_cita');
 
-    $pacientes = $pacientes ?? collect([
-        ['id_paciente' => 1, 'nombres' => 'María Fernanda', 'apellidos' => 'López Castillo', 'telefono' => '5555-2100'],
-        ['id_paciente' => 2, 'nombres' => 'Carlos Estuardo', 'apellidos' => 'Méndez López', 'telefono' => '5555-3344'],
-        ['id_paciente' => 3, 'nombres' => 'Andrea Lucía', 'apellidos' => 'Morales Díaz', 'telefono' => '5555-7721'],
-    ]);
-
-    $servicios = $servicios ?? collect([
-        ['id_servicio' => 1, 'nombre' => 'Acupuntura', 'duracion_minutos' => 60],
-        ['id_servicio' => 2, 'nombre' => 'Acupuntura láser', 'duracion_minutos' => 45],
-        ['id_servicio' => 3, 'nombre' => 'Quiropráctico', 'duracion_minutos' => 60],
-        ['id_servicio' => 4, 'nombre' => 'Terapia nutricional', 'duracion_minutos' => 60],
-    ]);
-
-    $especialistas = $especialistas ?? collect([
-        ['id_especialista' => 1, 'nombre_completo' => 'Dra. Ana Ruiz', 'profesion' => 'Acupunturista'],
-        ['id_especialista' => 2, 'nombre_completo' => 'Dr. Luis García', 'profesion' => 'Quiropráctico'],
-        ['id_especialista' => 3, 'nombre_completo' => 'Lic. Sofía Pérez', 'profesion' => 'Nutricionista'],
-    ]);
-
-    $estados = $estados ?? collect([
-        ['id_estado_cita' => 1, 'codigo' => 'PENDIENTE', 'nombre' => 'Pendiente'],
-        ['id_estado_cita' => 2, 'codigo' => 'CONFIRMADA', 'nombre' => 'Confirmada'],
-        ['id_estado_cita' => 3, 'codigo' => 'COMPLETADA', 'nombre' => 'Completada'],
-        ['id_estado_cita' => 4, 'codigo' => 'CANCELADA', 'nombre' => 'Cancelada'],
-        ['id_estado_cita' => 5, 'codigo' => 'NO_ASISTIO', 'nombre' => 'No asistió'],
-    ]);
-
     $inicio = data_get($cita, 'inicio');
     $fin = data_get($cita, 'fin');
+
     $fechaCita = old('fecha_cita');
     $horaInicio = old('hora_inicio');
     $horaFin = old('hora_fin');
 
     if (!$fechaCita && $inicio) {
-        try { $fechaCita = \Illuminate\Support\Carbon::parse($inicio)->format('Y-m-d'); } catch (\Throwable $e) {}
-    }
-    if (!$horaInicio && $inicio) {
-        try { $horaInicio = \Illuminate\Support\Carbon::parse($inicio)->format('H:i'); } catch (\Throwable $e) {}
-    }
-    if (!$horaFin && $fin) {
-        try { $horaFin = \Illuminate\Support\Carbon::parse($fin)->format('H:i'); } catch (\Throwable $e) {}
+        try {
+            $fechaCita = \Illuminate\Support\Carbon::parse($inicio)
+                ->format('Y-m-d');
+        } catch (\Throwable $e) {
+        }
     }
 
-    $idEstadoActual = old('id_estado_cita', data_get($cita, 'id_estado_cita', 1));
+    if (!$horaInicio && $inicio) {
+        try {
+            $horaInicio = \Illuminate\Support\Carbon::parse($inicio)
+                ->format('H:i');
+        } catch (\Throwable $e) {
+        }
+    }
+
+    if (!$horaFin && $fin) {
+        try {
+            $horaFin = \Illuminate\Support\Carbon::parse($fin)
+                ->format('H:i');
+        } catch (\Throwable $e) {
+        }
+    }
+
+    $idEstadoActual = old(
+        'id_estado_cita',
+        data_get($cita, 'id_estado_cita', 1)
+    );
 @endphp
 
-<form method="POST" action="{{ $esEdicion ? url('/citas/'.$idCita) : url('/citas') }}">
+<<form
+    method="POST"
+    action="{{ $esEdicion ? route('citas.update', $idCita) : route('citas.store') }}"
+>
     @csrf
     @if ($esEdicion)
         @method('PUT')
@@ -86,8 +80,20 @@
                             <select class="form-select @error('id_servicio') is-invalid @enderror" id="id_servicio" name="id_servicio" required>
                                 <option value="">Seleccionar servicio</option>
                                 @foreach ($servicios as $servicio)
-                                    <option value="{{ data_get($servicio, 'id_servicio') }}" data-duration="{{ data_get($servicio, 'duracion_minutos') }}" @selected((string) old('id_servicio', data_get($cita, 'id_servicio')) === (string) data_get($servicio, 'id_servicio'))>
-                                        {{ data_get($servicio, 'nombre') }} · {{ data_get($servicio, 'duracion_minutos') }} min
+                                    <option
+                                        value="{{ $servicio->id_servicio }}"
+                                        data-duracion="{{ $servicio->duracion_minutos }}"
+                                        @selected(
+                                            (string) old(
+                                                'id_servicio',
+                                                data_get($cita, 'id_servicio')
+                                            )
+                                            ===
+                                            (string) $servicio->id_servicio
+                                        )
+                                    >
+                                        {{ $servicio->nombre }}
+                                        · {{ $servicio->duracion_minutos }} min
                                     </option>
                                 @endforeach
                             </select>
@@ -99,8 +105,21 @@
                             <select class="form-select @error('id_especialista') is-invalid @enderror" id="id_especialista" name="id_especialista" required>
                                 <option value="">Seleccionar especialista</option>
                                 @foreach ($especialistas as $especialista)
-                                    <option value="{{ data_get($especialista, 'id_especialista') }}" @selected((string) old('id_especialista', data_get($cita, 'id_especialista')) === (string) data_get($especialista, 'id_especialista'))>
-                                        {{ data_get($especialista, 'nombre_completo') }} · {{ data_get($especialista, 'profesion') }}
+                                    <option
+                                        value="{{ $especialista->id_especialista }}"
+                                        @selected(
+                                            (string) old(
+                                                'id_especialista',
+                                                data_get($cita, 'id_especialista')
+                                            )
+                                            ===
+                                            (string) $especialista->id_especialista
+                                        )
+                                    >
+                                        {{ $especialista->usuario?->nombres }}
+                                        {{ $especialista->usuario?->apellidos }}
+                                        ·
+                                        {{ $especialista->profesion }}
                                     </option>
                                 @endforeach
                             </select>
@@ -120,22 +139,115 @@
                 </div>
                 <div class="card-body p-4">
                     <div class="row g-3">
-                        <div class="col-12 col-md-4">
-                            <label class="form-label" for="fecha_cita">Fecha <span class="text-danger">*</span></label>
-                            <input class="form-control @error('fecha_cita') is-invalid @enderror" id="fecha_cita" name="fecha_cita" type="date" value="{{ $fechaCita }}" required>
-                            @error('fecha_cita')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <div class="col-12 col-md-6">
+                            <label for="fecha_cita" class="form-label">
+                                Fecha de la cita
+                            </label>
+
+                            <input
+                                type="date"
+                                class="form-control @error('fecha_cita') is-invalid @enderror"
+                                id="fecha_cita"
+                                name="fecha_cita"
+                                value="{{ $fechaCita }}"
+                                required
+                            >
+
+                            @error('fecha_cita')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
 
-                        <div class="col-6 col-md-4">
-                            <label class="form-label" for="hora_inicio">Hora de inicio <span class="text-danger">*</span></label>
-                            <input class="form-control @error('hora_inicio') is-invalid @enderror" id="hora_inicio" name="hora_inicio" type="time" value="{{ $horaInicio }}" required>
-                            @error('hora_inicio')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <div class="col-12 col-md-6">
+                            <label for="hora_inicio" class="form-label">
+                                Hora de inicio
+                            </label>
+
+                            <select
+                                class="form-select @error('hora_inicio') is-invalid @enderror"
+                                id="hora_inicio"
+                                name="hora_inicio"
+                                required
+                            >
+                                <option value="">
+                                    Selecciona un horario
+                                </option>
+
+                                @php
+                                    $horarios = [
+                                        '08:00',
+                                        '08:30',
+                                        '09:00',
+                                        '09:30',
+                                        '10:00',
+                                        '10:30',
+                                        '11:00',
+                                        '11:30',
+                                        '12:00',
+                                        '12:30',
+                                        '13:00',
+                                        '13:30',
+                                        '14:00',
+                                        '14:30',
+                                        '15:00',
+                                        '15:30',
+                                        '16:00',
+                                        '16:30',
+                                        '17:00',
+                                        '17:30',
+                                    ];
+                                @endphp
+
+                                @foreach ($horarios as $horario)
+                                    <option
+                                        value="{{ $horario }}"
+                                        @selected($horaInicio === $horario)
+                                    >
+                                        {{ $horario }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            @error('hora_inicio')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
                         </div>
 
-                        <div class="col-6 col-md-4">
-                            <label class="form-label" for="hora_fin">Hora de finalización <span class="text-danger">*</span></label>
-                            <input class="form-control @error('hora_fin') is-invalid @enderror" id="hora_fin" name="hora_fin" type="time" value="{{ $horaFin }}" required>
-                            @error('hora_fin')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
+                    <input
+                        type="hidden"
+                        id="hora_fin"
+                        name="hora_fin"
+                        value="{{ $horaFin }}"
+                    >
+
+                    <div class="mt-3">
+                        <div class="alert alert-light border mb-0">
+                            <div class="d-flex align-items-center gap-3">
+
+                                <i class="bi bi-clock-fill text-brand fs-4"></i>
+
+                                <div>
+                                    <small class="text-muted d-block">
+                                        Horario de la cita
+                                    </small>
+
+                                    <strong id="horarioCalculado">
+                                        Selecciona un servicio y una hora
+                                    </strong>
+
+                                    <span
+                                        class="text-muted ms-2"
+                                        id="duracionServicio"
+                                    ></span>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
 
@@ -231,6 +343,7 @@
 </form>
 
 @push('scripts')
+<script src="{{ asset('assets/js/citas/cita-form.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const estado = document.getElementById('id_estado_cita');

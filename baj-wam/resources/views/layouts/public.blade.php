@@ -44,7 +44,37 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/baj-wam.js') }}"></script>
+
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Solicitud enviada',
+                    text: @json(session('success')),
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#6f42c1'
+                });
+            });
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No se pudo enviar',
+                    text: @json(session('error')),
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#dc3545'
+                });
+            });
+        </script>
+    @endif
+
     @stack('scripts')
 </body>
 </html>

@@ -5,6 +5,8 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\CambioPasswordController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\PermisoController;
+use App\Http\Controllers\CitaController;
+use App\Http\Controllers\SolicitudCitaController;
 
 // PÁGINA PÚBLICA
 
@@ -164,19 +166,35 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::view('/pacientes/1/edit', 'pacientes.edit')
             ->name('pacientes.edit');
 
-        // CITAS - TEMPORALES
+        // CITAS
 
-        Route::view('/citas', 'citas.index')
+        Route::get('/citas', [CitaController::class, 'index'])
+            ->middleware('can:citas.ver')
             ->name('citas.index');
 
-        Route::view('/citas/create', 'citas.create')
+        Route::get('/citas/create', [CitaController::class, 'create'])
+            ->middleware('can:citas.crear')
             ->name('citas.create');
 
-        Route::view('/citas/1', 'citas.show')
+        Route::post('/citas', [CitaController::class, 'store'])
+            ->middleware('can:citas.crear')
+            ->name('citas.store');
+
+        Route::get('/citas/{id}', [CitaController::class, 'show'])
+            ->middleware('can:citas.ver')
             ->name('citas.show');
 
-        Route::view('/citas/1/edit', 'citas.edit')
+        Route::get('/citas/{id}/edit', [CitaController::class, 'edit'])
+            ->middleware('can:citas.editar')
             ->name('citas.edit');
+
+        Route::put('/citas/{id}', [CitaController::class, 'update'])
+            ->middleware('can:citas.editar')
+            ->name('citas.update');
+
+        Route::delete('/citas/{id}', [CitaController::class, 'destroy'])
+            ->middleware('can:citas.cancelar')
+            ->name('citas.destroy');
 
         // CONSULTAS - TEMPORALES
 
@@ -212,4 +230,33 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->name('inventario.index');
 
     });
+
+    // SOLICITUDES DE CITA
+    Route::get(
+        '/solicitudes-cita',
+        [SolicitudCitaController::class, 'solicitudes']
+    )
+        ->middleware('can:citas.ver')
+        ->name('solicitudes-cita.index');
+
+    Route::get(
+        '/solicitudes-cita/{id}/procesar',
+        [SolicitudCitaController::class, 'procesar']
+    )
+        ->middleware('can:citas.crear')
+        ->name('solicitudes-cita.procesar');
+
+    Route::post(
+        '/solicitudes-cita/{id}/aprobar',
+        [SolicitudCitaController::class, 'aprobar']
+    )
+        ->middleware('can:citas.crear')
+        ->name('solicitudes-cita.aprobar');
+
+    Route::patch(
+        '/solicitudes-cita/{id}/rechazar',
+        [SolicitudCitaController::class, 'rechazar']
+    )
+        ->middleware('can:citas.cancelar')
+        ->name('solicitudes-cita.rechazar');
 });
