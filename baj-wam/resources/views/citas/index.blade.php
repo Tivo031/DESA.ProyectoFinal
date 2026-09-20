@@ -38,7 +38,7 @@
         </p>
     </div>
 
-    <a href="{{ url('/citas/create') }}" class="btn btn-brand">
+    <a href="{{ route('citas.create') }}" class="btn btn-brand">
         <i class="bi bi-calendar-plus-fill me-2"></i>
         Nueva cita
     </a>
@@ -505,7 +505,7 @@
 
                                     <a
                                         class="record-name"
-                                        href="{{ url('/citas/' . $id) }}"
+                                    href="{{ route('citas.show', $id) }}"
                                     >
                                         {{ $nombrePaciente }}
                                     </a>
@@ -585,7 +585,7 @@
                                 {{-- Ver --}}
                                 <a
                                     class="btn btn-sm btn-light border"
-                                    href="{{ url('/citas/' . $id) }}"
+                                    href="{{ route('citas.show', $id) }}"
                                     title="Ver cita"
                                     aria-label="Ver cita"
                                 >
@@ -596,9 +596,8 @@
                                 {{-- Editar --}}
                                 <a
                                     class="btn btn-sm btn-light border"
-                                    href="{{ url('/citas/' . $id . '/edit') }}"
+                                    href="{{ route('citas.edit', $id) }}"
                                     title="Editar cita"
-                                    aria-label="Editar cita"
                                 >
                                     <i class="bi bi-pencil"></i>
                                 </a>

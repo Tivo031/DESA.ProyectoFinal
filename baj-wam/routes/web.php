@@ -165,20 +165,35 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::view('/pacientes/1/edit', 'pacientes.edit')
             ->name('pacientes.edit');
 
-        // CITAS - TEMPORALES
+        // CITAS
 
         Route::get('/citas', [CitaController::class, 'index'])
             ->middleware('can:citas.ver')
             ->name('citas.index');
 
-        Route::view('/citas/create', 'citas.create')
+        Route::get('/citas/create', [CitaController::class, 'create'])
+            ->middleware('can:citas.crear')
             ->name('citas.create');
 
-        Route::view('/citas/1', 'citas.show')
+        Route::post('/citas', [CitaController::class, 'store'])
+            ->middleware('can:citas.crear')
+            ->name('citas.store');
+
+        Route::get('/citas/{id}', [CitaController::class, 'show'])
+            ->middleware('can:citas.ver')
             ->name('citas.show');
 
-        Route::view('/citas/1/edit', 'citas.edit')
+        Route::get('/citas/{id}/edit', [CitaController::class, 'edit'])
+            ->middleware('can:citas.editar')
             ->name('citas.edit');
+
+        Route::put('/citas/{id}', [CitaController::class, 'update'])
+            ->middleware('can:citas.editar')
+            ->name('citas.update');
+
+        Route::delete('/citas/{id}', [CitaController::class, 'destroy'])
+            ->middleware('can:citas.cancelar')
+            ->name('citas.destroy');
 
         // CONSULTAS - TEMPORALES
 
