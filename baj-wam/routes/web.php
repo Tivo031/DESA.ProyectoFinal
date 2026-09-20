@@ -10,8 +10,13 @@ use App\Http\Controllers\SolicitudCitaController;
 
 // PÁGINA PÚBLICA
 
-Route::view('/', 'public.inicio')
+// PÁGINA PÚBLICA
+
+Route::get('/', [SolicitudCitaController::class, 'index'])
     ->name('inicio');
+
+Route::post('/solicitudes-cita', [SolicitudCitaController::class, 'store'])
+    ->name('solicitudes-cita.store');
 
 // LOGIN
 
