@@ -6,6 +6,7 @@ use App\Http\Controllers\CambioPasswordController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\CitaController;
+use App\Http\Controllers\SolicitudCitaController;
 
 // PÁGINA PÚBLICA
 
@@ -229,4 +230,33 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->name('inventario.index');
 
     });
+
+    // SOLICITUDES DE CITA
+    Route::get(
+        '/solicitudes-cita',
+        [SolicitudCitaController::class, 'solicitudes']
+    )
+        ->middleware('can:citas.ver')
+        ->name('solicitudes-cita.index');
+
+    Route::get(
+        '/solicitudes-cita/{id}/procesar',
+        [SolicitudCitaController::class, 'procesar']
+    )
+        ->middleware('can:citas.crear')
+        ->name('solicitudes-cita.procesar');
+
+    Route::post(
+        '/solicitudes-cita/{id}/aprobar',
+        [SolicitudCitaController::class, 'aprobar']
+    )
+        ->middleware('can:citas.crear')
+        ->name('solicitudes-cita.aprobar');
+
+    Route::patch(
+        '/solicitudes-cita/{id}/rechazar',
+        [SolicitudCitaController::class, 'rechazar']
+    )
+        ->middleware('can:citas.cancelar')
+        ->name('solicitudes-cita.rechazar');
 });

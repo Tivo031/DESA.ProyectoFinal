@@ -38,10 +38,31 @@
         </p>
     </div>
 
-    <a href="{{ route('citas.create') }}" class="btn btn-brand">
-        <i class="bi bi-calendar-plus-fill me-2"></i>
-        Nueva cita
-    </a>
+    <div class="d-flex gap-2">
+        <a
+            href="{{ route('solicitudes-cita.index') }}"
+            class="btn btn-light border position-relative"
+        >
+            <i class="bi bi-inbox me-2"></i>
+            Solicitudes
+
+            @if ($solicitudesPendientes > 0)
+                <span
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                >
+                    {{ $solicitudesPendientes > 99 ? '99+' : $solicitudesPendientes }}
+                </span>
+            @endif
+        </a>
+
+        <a
+            href="{{ route('citas.create') }}"
+            class="btn btn-brand"
+        >
+            <i class="bi bi-calendar-plus-fill me-2"></i>
+            Nueva cita
+        </a>
+    </div>
 </div>
 
 <div class="row g-3 mb-4">

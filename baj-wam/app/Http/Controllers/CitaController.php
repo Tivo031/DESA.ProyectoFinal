@@ -7,6 +7,7 @@ use App\Models\Paciente;
 use App\Models\Servicio;
 use App\Models\Especialista;
 use App\Models\EstadoCita;
+use App\Models\SolicitudCita;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -128,13 +129,16 @@ class CitaController extends Controller
                 )->count(),
             ];
 
+            $solicitudesPendientes = SolicitudCita::where('estado', 'PENDIENTE')->count();
+
             return view(
                 'citas.index',
                 compact(
                     'citas',
                     'especialistas',
                     'estados',
-                    'resumenCitas'
+                    'resumenCitas',
+                    'solicitudesPendientes',
                 )
             );
 

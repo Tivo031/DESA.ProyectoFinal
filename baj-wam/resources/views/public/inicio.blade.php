@@ -87,30 +87,190 @@
                 </div>
                 <div class="col-lg-7">
                     <div class="appointment-panel p-4 p-lg-5">
-                        <form method="POST" action="{{ url('/solicitudes-cita') }}">
+                        <form method="POST" action="{{ route('solicitudes-cita.store') }}">
                             @csrf
                             <div class="row g-3">
-                                <div class="col-md-6"><label class="form-label">Nombre completo</label><input
-                                        class="form-control" name="nombre" required></div>
-                                <div class="col-md-6"><label class="form-label">Teléfono</label><input class="form-control"
-                                        name="telefono" required></div>
-                                <div class="col-md-6"><label class="form-label">Servicio</label><select class="form-select"
-                                        name="servicio" required>
-                                        <option value="">Seleccionar</option>
-                                        <option>Acupuntura</option>
-                                        <option>Quiropráctico</option>
-                                        <option>Terapia nutricional</option>
-                                    </select></div>
-                                <div class="col-md-3"><label class="form-label">Fecha preferida</label><input
-                                        class="form-control" type="date" name="fecha" required></div>
-                                <div class="col-md-3"><label class="form-label">Hora preferida</label><input
-                                        class="form-control" type="time" name="hora" required></div>
-                                <div class="col-12"><label class="form-label">Comentario</label>
-                                    <textarea class="form-control" rows="3" name="comentario"
-                                        placeholder="Cuéntanos brevemente cómo podemos ayudarte"></textarea>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Nombre completo
+                                    </label>
+
+                                    <input
+                                        class="form-control @error('nombre') is-invalid @enderror"
+                                        name="nombre"
+                                        value="{{ old('nombre') }}"
+                                        required
+                                    >
+
+                                    @error('nombre')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
                                 </div>
-                                <div class="col-12"><button class="btn btn-brand w-100" type="submit"><i
-                                            class="bi bi-send me-2"></i>Enviar solicitud</button></div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Teléfono
+                                    </label>
+
+                                    <input
+                                        class="form-control @error('telefono') is-invalid @enderror"
+                                        type="text"
+                                        id="telefono"
+                                        name="telefono"
+                                        value="{{ old('telefono') }}"
+                                        inputmode="numeric"
+                                        maxlength="20"
+                                        pattern="[0-9]+"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        required
+                                    >
+
+                                    @error('telefono')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        Servicio
+                                    </label>
+
+                                    <select
+                                        class="form-select @error('id_servicio') is-invalid @enderror"
+                                        name="id_servicio"
+                                        required
+                                    >
+                                        <option value="">
+                                            Seleccionar servicio
+                                        </option>
+
+                                        @foreach ($servicios as $servicio)
+                                            <option
+                                                value="{{ $servicio->id_servicio }}"
+                                                @selected(
+                                                    old('id_servicio') == $servicio->id_servicio
+                                                )
+                                            >
+                                                {{ $servicio->nombre }}
+                                                · {{ $servicio->duracion_minutos }} min
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                    @error('id_servicio')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">
+                                        Fecha preferida
+                                    </label>
+
+                                    <input
+                                        class="form-control @error('fecha') is-invalid @enderror"
+                                        type="date"
+                                        name="fecha"
+                                        value="{{ old('fecha') }}"
+                                        min="{{ now()->toDateString() }}"
+                                        required
+                                    >
+
+                                    @error('fecha')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">
+                                        Hora preferida
+                                    </label>
+
+                                    <select
+                                        class="form-select @error('hora') is-invalid @enderror"
+                                        name="hora"
+                                        required
+                                    >
+                                        <option value="">
+                                            Seleccionar
+                                        </option>
+
+                                        @foreach ([
+                                            '08:00',
+                                            '08:30',
+                                            '09:00',
+                                            '09:30',
+                                            '10:00',
+                                            '10:30',
+                                            '11:00',
+                                            '11:30',
+                                            '12:00',
+                                            '12:30',
+                                            '13:00',
+                                            '13:30',
+                                            '14:00',
+                                            '14:30',
+                                            '15:00',
+                                            '15:30',
+                                            '16:00',
+                                            '16:30',
+                                            '17:00',
+                                            '17:30'
+                                        ] as $hora)
+                                            <option
+                                                value="{{ $hora }}"
+                                                @selected(old('hora') === $hora)
+                                            >
+                                                {{ $hora }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                    @error('hora')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">
+                                        Comentario
+                                    </label>
+
+                                    <textarea
+                                        class="form-control @error('comentario') is-invalid @enderror"
+                                        rows="3"
+                                        name="comentario"
+                                        maxlength="500"
+                                        placeholder="Cuéntanos brevemente cómo podemos ayudarte"
+                                    >{{ old('comentario') }}</textarea>
+
+                                    @error('comentario')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12">
+                                    <button
+                                        class="btn btn-brand w-100"
+                                        type="submit"
+                                    >
+                                        <i class="bi bi-send me-2"></i>
+                                        Enviar solicitud
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
