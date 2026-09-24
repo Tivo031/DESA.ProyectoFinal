@@ -9,6 +9,8 @@ use App\Http\Controllers\CitaController;
 use App\Http\Controllers\SolicitudCitaController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\CatalogoController;
 
 // PÁGINA PÚBLICA
 
@@ -19,6 +21,9 @@ Route::get('/', [SolicitudCitaController::class, 'index'])
 
 Route::post('/solicitudes-cita', [SolicitudCitaController::class, 'store'])
     ->name('solicitudes-cita.store');
+
+Route::get('/catalogo', [CatalogoController::class, 'index'])
+    ->name('catalogo.publico');
 
 // LOGIN
 
@@ -247,10 +252,31 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::delete('/productos/{id}', [ProductoController::class, 'destroy'])
             ->name('productos.destroy');
 
-        // INVENTARIO - TEMPORAL
+        Route::patch('/productos/{id}/activar', [ProductoController::class, 'activar'])
+            ->name('productos.activar');
 
-        Route::view('/inventario', 'inventario.index')
+        // INVENTARIO
+
+        Route::get('/inventario', [InventarioController::class, 'index'])
             ->name('inventario.index');
+
+        Route::get('/inventario/movimientos/create', [InventarioController::class, 'create'])
+            ->name('inventario.create');
+
+        Route::post('/inventario/movimientos', [InventarioController::class, 'store'])
+            ->name('inventario.store');
+
+        Route::get('/inventario', [InventarioController::class, 'index'])
+            ->name('inventario.index');
+
+        Route::get('/inventario/movimientos', [InventarioController::class, 'historial'])
+            ->name('inventario.historial');
+
+        Route::get('/inventario/movimientos/create', [InventarioController::class, 'create'])
+            ->name('inventario.create');
+
+        Route::post('/inventario/movimientos', [InventarioController::class, 'store'])
+            ->name('inventario.store');
 
     });
 
@@ -282,4 +308,14 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
     )
         ->middleware('can:citas.cancelar')
         ->name('solicitudes-cita.rechazar');
+
+    Route::patch(
+        '/productos/{id}/catalogo/publicar',
+        [ProductoController::class, 'publicarCatalogo']
+    )->name('productos.catalogo.publicar');
+
+    Route::patch(
+        '/productos/{id}/catalogo/retirar',
+        [ProductoController::class, 'retirarCatalogo']
+    )->name('productos.catalogo.retirar');
 });

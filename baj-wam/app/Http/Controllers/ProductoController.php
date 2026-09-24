@@ -7,6 +7,7 @@ use App\Models\CategoriaProducto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use App\Models\CatalogoPublico;
 use Throwable;
 
 class ProductoController extends Controller
@@ -14,7 +15,10 @@ class ProductoController extends Controller
     public function index(Request $request)
     {
         try {
-            $consulta = Producto::with('categoria');
+            $consulta = Producto::with([
+                'categoria',
+                'catalogo',
+            ]);
 
             if ($request->filled('buscar')) {
                 $buscar = trim($request->buscar);
@@ -358,6 +362,138 @@ class ProductoController extends Controller
 
             return back()
                 ->with('error', 'No fue posible desactivar el producto.');
+        }
+    }
+
+    public function activar($id)
+    {
+        try {
+            $producto = Producto::findOrFail($id);
+
+            if ($producto->activo) {
+                return redirect()
+                    ->route('productos.index')
+                    ->with('error', 'El producto ya se encuentra activo.');
+            }
+
+            $producto->update([
+                'activo' => true,
+            ]);
+
+            return redirect()
+                ->route('productos.index')
+                ->with('success', 'Producto activado correctamente.');
+
+        } catch (Throwable $e) {
+            Log::error('Error al activar producto.', [
+                'id_producto' => $id,
+                'mensaje' => $e->getMessage(),
+            ]);
+
+            return back()->with(
+                'error',
+                'No fue posible activar el producto.'
+            );
+        }
+    }
+
+    //CATALOGOS
+    public function publicarCatalogo($id)
+    {
+        try {
+            $producto = Producto::findOrFail($id);
+
+            if (!$producto->activo) {
+                return back()->with(
+                    'error',
+                    'No puedes publicar un producto inactivo.'
+                );
+            }
+
+            $catalogo = CatalogoPublico::where(
+                'id_producto',
+                $producto->id_producto
+            )->first();
+
+            if ($catalogo && $catalogo->visible) {
+                return back()->with(
+                    'error',
+                    'El producto ya está publicado.'
+                );
+            }
+
+            $orden = $catalogo?->orden_visualizacion;
+
+            if (!$orden) {
+                $orden = (CatalogoPublico::max('orden_visualizacion') ?? 0) + 1;
+            }
+
+            CatalogoPublico::updateOrCreate(
+                [
+                    'id_producto' => $producto->id_producto,
+                ],
+                [
+                    'visible' => true,
+                    'orden_visualizacion' => $orden,
+                    'fecha_publicacion' => now(),
+                ]
+            );
+
+            return back()->with(
+                'success',
+                'Producto publicado en el catálogo.'
+            );
+
+        } catch (Throwable $e) {
+            Log::error('Error al publicar producto.', [
+                'id_producto' => $id,
+                'mensaje' => $e->getMessage(),
+            ]);
+
+            return back()->with(
+                'error',
+                'No fue posible publicar el producto.'
+            );
+        }
+    }
+
+    public function retirarCatalogo($id)
+    {
+        try {
+            $producto = Producto::findOrFail($id);
+
+            $catalogo = CatalogoPublico::where(
+                'id_producto',
+                $producto->id_producto
+            )->first();
+
+            if (!$catalogo || !$catalogo->visible) {
+                return back()->with(
+                    'error',
+                    'El producto no está publicado.'
+                );
+            }
+
+            $catalogo->update([
+                'visible' => false,
+                'fecha_publicacion' => null,
+            ]);
+
+            return back()->with(
+                'success',
+                'Producto retirado del catálogo.'
+            );
+
+        } catch (Throwable $e) {
+            Log::error('Error al retirar producto del catálogo.', [
+                'id_producto' => $id,
+                'mensaje' => $e->getMessage(),
+            ]);
+
+            return back()->with(
+                'error',
+                'No fue posible retirar el producto.'
+            );
         }
     }
 }

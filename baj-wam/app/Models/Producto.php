@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Producto extends Model
 {
@@ -38,6 +40,24 @@ class Producto extends Model
             CategoriaProducto::class,
             'id_categoria',
             'id_categoria'
+        );
+    }
+
+    public function movimientos(): HasMany
+    {
+        return $this->hasMany(
+            MovimientoInventario::class,
+            'id_producto',
+            'id_producto'
+        );
+    }
+
+    public function catalogo(): HasOne
+    {
+        return $this->hasOne(
+            CatalogoPublico::class,
+            'id_producto',
+            'id_producto'
         );
     }
 }

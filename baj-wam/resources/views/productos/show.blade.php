@@ -41,7 +41,18 @@
                         <i class="bi bi-x-circle me-2"></i>
                         Desactivar
                     </button>
+                </form>
 
+            @else
+
+                <form method="POST" action="{{ route('productos.activar', $producto->id_producto) }}">
+                    @csrf
+                    @method('PATCH')
+
+                    <button type="submit" class="btn btn-outline-success">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Activar
+                    </button>
                 </form>
 
             @endif
