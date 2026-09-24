@@ -8,6 +8,9 @@ use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\SolicitudCitaController;
 use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\CatalogoController;
 
 // PÁGINA PÚBLICA
 
@@ -18,6 +21,9 @@ Route::get('/', [SolicitudCitaController::class, 'index'])
 
 Route::post('/solicitudes-cita', [SolicitudCitaController::class, 'store'])
     ->name('solicitudes-cita.store');
+
+Route::get('/catalogo', [CatalogoController::class, 'index'])
+    ->name('catalogo.publico');
 
 // LOGIN
 
@@ -224,24 +230,53 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::view('/consultas/1/edit', 'consultas.edit')
             ->name('consultas.edit');
 
-        // PRODUCTOS - TEMPORALES
-
-        Route::view('/productos', 'productos.index')
+        // PRODUCTOS 
+        Route::get('/productos', [ProductoController::class, 'index'])
             ->name('productos.index');
 
-        Route::view('/productos/create', 'productos.create')
+        Route::get('/productos/create', [ProductoController::class, 'create'])
             ->name('productos.create');
 
-        Route::view('/productos/1', 'productos.show')
+        Route::post('/productos', [ProductoController::class, 'store'])
+            ->name('productos.store');
+
+        Route::get('/productos/{id}', [ProductoController::class, 'show'])
             ->name('productos.show');
 
-        Route::view('/productos/1/edit', 'productos.edit')
+        Route::get('/productos/{id}/edit', [ProductoController::class, 'edit'])
             ->name('productos.edit');
 
-        // INVENTARIO - TEMPORAL
+        Route::put('/productos/{id}', [ProductoController::class, 'update'])
+            ->name('productos.update');
 
-        Route::view('/inventario', 'inventario.index')
+        Route::delete('/productos/{id}', [ProductoController::class, 'destroy'])
+            ->name('productos.destroy');
+
+        Route::patch('/productos/{id}/activar', [ProductoController::class, 'activar'])
+            ->name('productos.activar');
+
+        // INVENTARIO
+
+        Route::get('/inventario', [InventarioController::class, 'index'])
             ->name('inventario.index');
+
+        Route::get('/inventario/movimientos/create', [InventarioController::class, 'create'])
+            ->name('inventario.create');
+
+        Route::post('/inventario/movimientos', [InventarioController::class, 'store'])
+            ->name('inventario.store');
+
+        Route::get('/inventario', [InventarioController::class, 'index'])
+            ->name('inventario.index');
+
+        Route::get('/inventario/movimientos', [InventarioController::class, 'historial'])
+            ->name('inventario.historial');
+
+        Route::get('/inventario/movimientos/create', [InventarioController::class, 'create'])
+            ->name('inventario.create');
+
+        Route::post('/inventario/movimientos', [InventarioController::class, 'store'])
+            ->name('inventario.store');
 
     });
 
@@ -273,4 +308,14 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
     )
         ->middleware('can:citas.cancelar')
         ->name('solicitudes-cita.rechazar');
+
+    Route::patch(
+        '/productos/{id}/catalogo/publicar',
+        [ProductoController::class, 'publicarCatalogo']
+    )->name('productos.catalogo.publicar');
+
+    Route::patch(
+        '/productos/{id}/catalogo/retirar',
+        [ProductoController::class, 'retirarCatalogo']
+    )->name('productos.catalogo.retirar');
 });
