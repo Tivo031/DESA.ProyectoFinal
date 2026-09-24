@@ -7,6 +7,7 @@ use App\Http\Controllers\RolController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\SolicitudCitaController;
+use App\Http\Controllers\PacienteController;
 
 // PÁGINA PÚBLICA
 
@@ -157,19 +158,27 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->middleware('can:usuarios.editar')
             ->name('usuarios.edit');
 
-        // PACIENTES - TEMPORALES
-
-        Route::view('/pacientes', 'pacientes.index')
+        // PACIENTES 
+        Route::get('/pacientes', [PacienteController::class, 'index'])
             ->name('pacientes.index');
 
-        Route::view('/pacientes/create', 'pacientes.create')
+        Route::get('/pacientes/create', [PacienteController::class, 'create'])
             ->name('pacientes.create');
 
-        Route::view('/pacientes/1', 'pacientes.show')
+        Route::post('/pacientes', [PacienteController::class, 'store'])
+            ->name('pacientes.store');
+
+        Route::get('/pacientes/{id}', [PacienteController::class, 'show'])
             ->name('pacientes.show');
 
-        Route::view('/pacientes/1/edit', 'pacientes.edit')
+        Route::get('/pacientes/{id}/edit', [PacienteController::class, 'edit'])
             ->name('pacientes.edit');
+
+        Route::put('/pacientes/{id}', [PacienteController::class, 'update'])
+            ->name('pacientes.update');
+
+        Route::delete('/pacientes/{id}', [PacienteController::class, 'destroy'])
+            ->name('pacientes.destroy');
 
         // CITAS
 
