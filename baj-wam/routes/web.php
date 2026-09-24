@@ -8,6 +8,7 @@ use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\SolicitudCitaController;
 use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\ProductoController;
 
 // PÁGINA PÚBLICA
 
@@ -224,19 +225,27 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
         Route::view('/consultas/1/edit', 'consultas.edit')
             ->name('consultas.edit');
 
-        // PRODUCTOS - TEMPORALES
-
-        Route::view('/productos', 'productos.index')
+        // PRODUCTOS 
+        Route::get('/productos', [ProductoController::class, 'index'])
             ->name('productos.index');
 
-        Route::view('/productos/create', 'productos.create')
+        Route::get('/productos/create', [ProductoController::class, 'create'])
             ->name('productos.create');
 
-        Route::view('/productos/1', 'productos.show')
+        Route::post('/productos', [ProductoController::class, 'store'])
+            ->name('productos.store');
+
+        Route::get('/productos/{id}', [ProductoController::class, 'show'])
             ->name('productos.show');
 
-        Route::view('/productos/1/edit', 'productos.edit')
+        Route::get('/productos/{id}/edit', [ProductoController::class, 'edit'])
             ->name('productos.edit');
+
+        Route::put('/productos/{id}', [ProductoController::class, 'update'])
+            ->name('productos.update');
+
+        Route::delete('/productos/{id}', [ProductoController::class, 'destroy'])
+            ->name('productos.destroy');
 
         // INVENTARIO - TEMPORAL
 
