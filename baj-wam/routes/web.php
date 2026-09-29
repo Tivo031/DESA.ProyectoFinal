@@ -10,8 +10,6 @@ use App\Http\Controllers\SolicitudCitaController;
 
 // PÁGINA PÚBLICA
 
-// PÁGINA PÚBLICA
-
 Route::get('/', [SolicitudCitaController::class, 'index'])
     ->name('inicio');
 

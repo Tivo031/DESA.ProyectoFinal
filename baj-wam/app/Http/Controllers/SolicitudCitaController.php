@@ -270,7 +270,7 @@ class SolicitudCitaController extends Controller
                 'string',
                 'min:8',
                 'max:20',
-                'regex:/^[0-9]+$/',
+                'regex:/^\d{4}-\d{4}$/',
             ],
             'id_especialista' => [
                 'required',

@@ -126,6 +126,7 @@
                                         pattern="[0-9]+"
                                         oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                         required
+                                        placeholder="Ej. 5555-5555"
                                     >
 
                                     @error('telefono')
