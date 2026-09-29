@@ -20,21 +20,25 @@
 
     <div class="d-flex gap-2">
 
-        <a
-            href="{{ route('inventario.index') }}"
-            class="btn btn-light border"
-        >
-            <i class="bi bi-arrow-left me-2"></i>
-            Inventario
-        </a>
+        @can('inventario.ver')
+            <a
+                href="{{ route('inventario.index') }}"
+                class="btn btn-light border"
+            >
+                <i class="bi bi-arrow-left me-2"></i>
+                Inventario
+            </a>
+        @endcan
 
-        <a
-            href="{{ route('inventario.create') }}"
-            class="btn btn-brand"
-        >
-            <i class="bi bi-plus-circle-fill me-2"></i>
-            Nuevo movimiento
-        </a>
+        @can('inventario.movimiento')
+            <a
+                href="{{ route('inventario.create') }}"
+                class="btn btn-brand"
+            >
+                <i class="bi bi-plus-circle-fill me-2"></i>
+                Nuevo movimiento
+            </a>
+        @endcan
 
     </div>
 
@@ -78,6 +82,7 @@
                     name="producto"
                     class="form-select"
                 >
+
                     <option value="">
                         Todos
                     </option>
@@ -95,6 +100,7 @@
                         </option>
 
                     @endforeach
+
                 </select>
 
             </div>
@@ -110,6 +116,7 @@
                     name="tipo"
                     class="form-select"
                 >
+
                     <option value="">
                         Todos
                     </option>
@@ -141,6 +148,7 @@
                     >
                         Ajuste negativo
                     </option>
+
                 </select>
 
             </div>
@@ -205,7 +213,8 @@
     </div>
 
 
-    <div class="table-responsive">
+    {{-- ESCRITORIO / TABLET --}}
+    <div class="table-responsive d-none d-md-block">
 
         <table class="table align-middle">
 
@@ -213,7 +222,9 @@
                 <tr>
                     <th>Fecha</th>
                     <th>Producto</th>
-                    <th>Tipo</th>
+                    <th class="text-nowrap" style="min-width: 125px;">
+                        Tipo
+                    </th>
                     <th>Cantidad</th>
                     <th>Referencia</th>
                     <th>Responsable</th>
@@ -258,15 +269,21 @@
 
                         <td>
 
-                            <a
-                                href="{{ route(
-                                    'productos.show',
-                                    $movimiento->producto->id_producto
-                                ) }}"
-                                class="record-name"
-                            >
-                                {{ $movimiento->producto->nombre }}
-                            </a>
+                            @can('productos.ver')
+                                <a
+                                    href="{{ route(
+                                        'productos.show',
+                                        $movimiento->producto->id_producto
+                                    ) }}"
+                                    class="record-name"
+                                >
+                                    {{ $movimiento->producto->nombre }}
+                                </a>
+                            @else
+                                <span class="record-name">
+                                    {{ $movimiento->producto->nombre }}
+                                </span>
+                            @endcan
 
                             <span class="record-subtitle">
                                 {{ $movimiento->producto->codigo }}
@@ -275,29 +292,32 @@
                         </td>
 
 
-                        <td>
+                        <td
+                            class="text-nowrap"
+                            style="min-width: 125px;"
+                        >
 
                             @if ($movimiento->tipo === 'ENTRADA')
 
-                                <span class="badge-status status-confirmada">
+                                <span class="badge-status status-confirmada text-nowrap">
                                     ENTRADA
                                 </span>
 
                             @elseif ($movimiento->tipo === 'SALIDA')
 
-                                <span class="badge-status status-cancelada">
+                                <span class="badge-status status-cancelada text-nowrap">
                                     SALIDA
                                 </span>
 
                             @elseif ($movimiento->tipo === 'AJUSTE_POSITIVO')
 
-                                <span class="badge-status status-confirmada">
+                                <span class="badge-status status-confirmada text-nowrap">
                                     AJUSTE +
                                 </span>
 
                             @else
 
-                                <span class="badge-status status-pendiente">
+                                <span class="badge-status status-pendiente text-nowrap">
                                     AJUSTE -
                                 </span>
 
@@ -306,7 +326,7 @@
                         </td>
 
 
-                        <td>
+                        <td class="text-nowrap">
 
                             <strong
                                 class="{{ $esPositivo
@@ -361,6 +381,193 @@
             </tbody>
 
         </table>
+
+    </div>
+
+
+    {{-- MÓVIL --}}
+    <div class="d-md-none p-3">
+
+        @forelse ($movimientos as $movimiento)
+
+            @php
+                $esPositivo = in_array(
+                    $movimiento->tipo,
+                    [
+                        'ENTRADA',
+                        'AJUSTE_POSITIVO'
+                    ]
+                );
+
+                $nombreUsuario = trim(
+                    ($movimiento->usuario?->nombres ?? '')
+                    . ' '
+                    . ($movimiento->usuario?->apellidos ?? '')
+                );
+            @endphp
+
+            <div class="card bw-card mb-3">
+
+                <div class="card-body">
+
+                    {{-- PRODUCTO Y TIPO --}}
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+
+                        <div class="min-w-0">
+
+                            @can('productos.ver')
+                                <a
+                                    href="{{ route(
+                                        'productos.show',
+                                        $movimiento->producto->id_producto
+                                    ) }}"
+                                    class="record-name"
+                                >
+                                    {{ $movimiento->producto->nombre }}
+                                </a>
+                            @else
+                                <span class="record-name">
+                                    {{ $movimiento->producto->nombre }}
+                                </span>
+                            @endcan
+
+                            <span class="record-subtitle">
+                                {{ $movimiento->producto->codigo }}
+                            </span>
+
+                        </div>
+
+
+                        @if ($movimiento->tipo === 'ENTRADA')
+
+                            <span class="badge-status status-confirmada flex-shrink-0 text-nowrap">
+                                ENTRADA
+                            </span>
+
+                        @elseif ($movimiento->tipo === 'SALIDA')
+
+                            <span class="badge-status status-cancelada flex-shrink-0 text-nowrap">
+                                SALIDA
+                            </span>
+
+                        @elseif ($movimiento->tipo === 'AJUSTE_POSITIVO')
+
+                            <span class="badge-status status-confirmada flex-shrink-0 text-nowrap">
+                                AJUSTE +
+                            </span>
+
+                        @else
+
+                            <span class="badge-status status-pendiente flex-shrink-0 text-nowrap">
+                                AJUSTE -
+                            </span>
+
+                        @endif
+
+                    </div>
+
+
+                    {{-- INFORMACIÓN --}}
+                    <div class="row g-3 small">
+
+                        <div class="col-6">
+
+                            <div class="text-muted mb-1">
+                                Fecha
+                            </div>
+
+                            <div class="fw-semibold text-nowrap">
+                                {{ $movimiento->fecha_movimiento?->format('d/m/Y') }}
+                            </div>
+
+                            <div class="text-muted">
+                                {{ $movimiento->fecha_movimiento?->format('H:i') }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-6">
+
+                            <div class="text-muted mb-1">
+                                Cantidad
+                            </div>
+
+                            <div class="text-nowrap">
+
+                                <strong
+                                    class="{{ $esPositivo
+                                        ? 'text-success'
+                                        : 'text-danger' }}"
+                                >
+                                    {{ $esPositivo ? '+' : '-' }}
+                                    {{ number_format(
+                                        $movimiento->cantidad,
+                                        2
+                                    ) }}
+                                </strong>
+
+                                <span class="text-muted">
+                                    {{ $movimiento->producto->unidad_medida }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <div class="text-muted mb-1">
+                                Referencia
+                            </div>
+
+                            <div class="fw-semibold">
+                                {{ $movimiento->referencia ?: 'Sin referencia' }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <div class="text-muted mb-1">
+                                Responsable
+                            </div>
+
+                            <div class="fw-semibold">
+                                {{ $nombreUsuario ?: 'Usuario no disponible' }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <div class="text-muted mb-1">
+                                Observaciones
+                            </div>
+
+                            <div>
+                                {{ $movimiento->observaciones ?: 'Sin observaciones' }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        @empty
+
+            <div class="empty-state">
+                <i class="bi bi-clock-history"></i>
+                No hay movimientos que coincidan con los filtros.
+            </div>
+
+        @endforelse
 
     </div>
 
