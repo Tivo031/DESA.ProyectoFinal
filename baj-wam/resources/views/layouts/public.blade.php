@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,13 +13,14 @@
     @stack('styles')
 </head>
 
-<body class="public-body">
+<body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg public-navbar sticky-top">
         <div class="container">
             <a class="navbar-brand py-0" href="{{ url('/') }}">
                 <img src="{{ asset('assets/img/logo-baj-wam.png') }}" alt="BAJ WAM Acupuntura">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav" aria-controls="publicNav" aria-expanded="false" aria-label="Abrir menú">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav"
+                aria-controls="publicNav" aria-expanded="false" aria-label="Abrir menú">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="publicNav">
@@ -27,14 +29,17 @@
                     <li class="nav-item"><a class="nav-link" href="{{ url('/#servicios') }}">Servicios</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url('/#productos') }}">Productos</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url('/#cita') }}">Solicitar cita</a></li>
-                    <li class="nav-item"><a class="btn btn-outline-brand ms-lg-2" href="{{ url('/login') }}"><i class="bi bi-person-lock me-2"></i>Acceso interno</a></li>
+                    <li class="nav-item"><a class="btn btn-outline-brand ms-lg-2" href="{{ url('/login') }}"><i
+                                class="bi bi-person-lock me-2"></i>Acceso interno</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
     @include('partials.flash-messages')
-    @yield('content')
+    <main class="flex-grow-1 d-flex flex-column">
+        @yield('content')
+    </main>
 
     <footer class="public-footer py-4">
         <div class="container d-flex flex-column flex-md-row justify-content-between gap-2">
@@ -77,4 +82,5 @@
 
     @stack('scripts')
 </body>
+
 </html>
