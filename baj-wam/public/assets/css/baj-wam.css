@@ -270,14 +270,37 @@ a:hover {
     font-size: 0.88rem;
 }
 
-.stat-purple { color: var(--bw-purple); }
-.stat-purple .stat-icon { background: rgba(102, 80, 154, 0.12); }
-.stat-plum { color: var(--bw-plum); }
-.stat-plum .stat-icon { background: rgba(142, 59, 108, 0.12); }
-.stat-green { color: var(--bw-green); }
-.stat-green .stat-icon { background: rgba(78, 99, 54, 0.13); }
-.stat-lime { color: #97992b; }
-.stat-lime .stat-icon { background: rgba(209, 211, 101, 0.2); }
+.stat-purple {
+    color: var(--bw-purple);
+}
+
+.stat-purple .stat-icon {
+    background: rgba(102, 80, 154, 0.12);
+}
+
+.stat-plum {
+    color: var(--bw-plum);
+}
+
+.stat-plum .stat-icon {
+    background: rgba(142, 59, 108, 0.12);
+}
+
+.stat-green {
+    color: var(--bw-green);
+}
+
+.stat-green .stat-icon {
+    background: rgba(78, 99, 54, 0.13);
+}
+
+.stat-lime {
+    color: #97992b;
+}
+
+.stat-lime .stat-icon {
+    background: rgba(209, 211, 101, 0.2);
+}
 
 /* ---------- Tablas y formularios ---------- */
 .table-responsive {
@@ -288,7 +311,7 @@ a:hover {
     margin-bottom: 0;
 }
 
-.table > :not(caption) > * > * {
+.table> :not(caption)>*>* {
     padding: 0.88rem 1rem;
     border-bottom-color: #eceee8;
     vertical-align: middle;
@@ -602,13 +625,33 @@ a:hover {
 }
 
 /* ---------- Utilidades ---------- */
-.text-brand { color: var(--bw-purple) !important; }
-.text-plum { color: var(--bw-plum) !important; }
-.text-green-bw { color: var(--bw-green) !important; }
-.bg-soft-purple { background: rgba(102, 80, 154, 0.08) !important; }
-.bg-soft-green { background: rgba(78, 99, 54, 0.08) !important; }
-.bg-soft-lime { background: rgba(209, 211, 101, 0.18) !important; }
-.border-bw { border-color: var(--bw-border) !important; }
+.text-brand {
+    color: var(--bw-purple) !important;
+}
+
+.text-plum {
+    color: var(--bw-plum) !important;
+}
+
+.text-green-bw {
+    color: var(--bw-green) !important;
+}
+
+.bg-soft-purple {
+    background: rgba(102, 80, 154, 0.08) !important;
+}
+
+.bg-soft-green {
+    background: rgba(78, 99, 54, 0.08) !important;
+}
+
+.bg-soft-lime {
+    background: rgba(209, 211, 101, 0.18) !important;
+}
+
+.border-bw {
+    border-color: var(--bw-border) !important;
+}
 
 .empty-state {
     padding: 3rem 1rem;
@@ -665,7 +708,7 @@ a:hover {
         padding: 0.95rem;
     }
 
-    .table > :not(caption) > * > * {
+    .table> :not(caption)>*>* {
         padding: 0.78rem 0.72rem;
     }
 
@@ -1005,7 +1048,7 @@ textarea.form-control {
         flex-direction: column;
     }
 
-    .form-action-bar > div:last-child {
+    .form-action-bar>div:last-child {
         justify-content: flex-end;
     }
 }
@@ -1032,10 +1075,21 @@ textarea.form-control {
    CRUD de Productos, Citas y Consultas
    Mantiene la identidad visual de BAJ WAM y agrega componentes simples.
    ================================================================ */
-.text-plum-bw { color: var(--bw-plum) !important; }
-.text-lime-bw { color: #8a8d24 !important; }
-.bg-soft-plum { background: rgba(142, 59, 108, 0.09) !important; }
-.bg-soft-warning { background: rgba(209, 175, 75, 0.15) !important; }
+.text-plum-bw {
+    color: var(--bw-plum) !important;
+}
+
+.text-lime-bw {
+    color: #8a8d24 !important;
+}
+
+.bg-soft-plum {
+    background: rgba(142, 59, 108, 0.09) !important;
+}
+
+.bg-soft-warning {
+    background: rgba(209, 175, 75, 0.15) !important;
+}
 
 .product-record {
     min-width: 250px;
@@ -1375,7 +1429,7 @@ button.action-tile {
     transform: translateY(-1px);
 }
 
-.action-tile > span {
+.action-tile>span {
     display: grid;
     width: 44px;
     height: 44px;
@@ -1397,12 +1451,12 @@ button.action-tile {
     font-size: 0.75rem;
 }
 
-.action-tile.is-success > span {
+.action-tile.is-success>span {
     color: var(--bw-green);
     background: rgba(78, 99, 54, 0.1);
 }
 
-.action-tile.is-danger > span {
+.action-tile.is-danger>span {
     color: #a0464f;
     background: rgba(177, 69, 79, 0.1);
 }
@@ -1445,7 +1499,7 @@ button.action-tile {
         rgba(142, 59, 108, 0.055);
 }
 
-.clinical-privacy-card > span {
+.clinical-privacy-card>span {
     display: grid;
     width: 44px;
     height: 44px;
@@ -1575,7 +1629,25 @@ button.action-tile {
     }
 }
 
+/* COLUMNA ESTADO DE CITAS */
+table th.cita-estado-col,
+table td.cita-estado-col {
+    width: 140px;
+    min-width: 140px;
+    white-space: nowrap;
+}
+
+table td.cita-estado-col .badge-status {
+    display: inline-block;
+    width: auto;
+    min-width: max-content;
+    white-space: nowrap !important;
+    word-break: keep-all;
+    overflow-wrap: normal;
+}
+
 @media print {
+
     .app-sidebar,
     .app-topbar,
     .page-header .btn,

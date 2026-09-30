@@ -4,317 +4,515 @@
 
 @section('content')
 
-    <div class="page-header">
-        <div>
-            <div class="page-eyebrow">Productos naturales</div>
-            <h1 class="page-title">Inventario</h1>
-            <p class="page-subtitle">
-                Consulta existencias y registra movimientos de productos.
-            </p>
-        </div>
+<div class="page-header">
+    <div>
+        <div class="page-eyebrow">Productos naturales</div>
+        <h1 class="page-title">Inventario</h1>
+        <p class="page-subtitle">
+            Consulta existencias y registra movimientos de productos.
+        </p>
+    </div>
 
-        <div class="d-flex gap-2">
+    <div class="d-flex gap-2">
 
+        @can('inventario.ver')
             <a href="{{ route('inventario.historial') }}" class="btn btn-light border">
                 <i class="bi bi-clock-history me-2"></i>
                 Historial
             </a>
+        @endcan
 
+        @can('inventario.movimiento')
             <a href="{{ route('inventario.create') }}" class="btn btn-brand">
                 <i class="bi bi-box-arrow-in-down me-2"></i>
                 Nuevo movimiento
             </a>
-
-        </div>
-
-    </div>
-
-    <div class="row g-3 mb-4">
-
-        <div class="col-6 col-xl-3">
-            <div class="card bw-card mini-stat-card h-100">
-                <div class="card-body d-flex align-items-center gap-3">
-
-                    <span class="mini-stat-icon bg-soft-purple text-brand">
-                        <i class="bi bi-box-seam-fill"></i>
-                    </span>
-
-                    <div>
-                        <div class="mini-stat-value">
-                            {{ $resumenInventario['productos'] }}
-                        </div>
-
-                        <div class="mini-stat-label">
-                            Productos activos
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="col-6 col-xl-3">
-            <div class="card bw-card mini-stat-card h-100">
-                <div class="card-body d-flex align-items-center gap-3">
-
-                    <span class="mini-stat-icon bg-soft-warning text-warning-emphasis">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    </span>
-
-                    <div>
-                        <div class="mini-stat-value">
-                            {{ $resumenInventario['bajos'] }}
-                        </div>
-
-                        <div class="mini-stat-label">
-                            Existencia baja
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="col-6 col-xl-3">
-            <div class="card bw-card mini-stat-card h-100">
-                <div class="card-body d-flex align-items-center gap-3">
-
-                    <span class="mini-stat-icon bg-soft-danger text-danger">
-                        <i class="bi bi-box2-fill"></i>
-                    </span>
-
-                    <div>
-                        <div class="mini-stat-value">
-                            {{ $resumenInventario['sin_existencia'] }}
-                        </div>
-
-                        <div class="mini-stat-label">
-                            Sin existencia
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="col-6 col-xl-3">
-            <div class="card bw-card mini-stat-card h-100">
-                <div class="card-body d-flex align-items-center gap-3">
-
-                    <span class="mini-stat-icon bg-soft-green text-green-bw">
-                        <i class="bi bi-arrow-left-right"></i>
-                    </span>
-
-                    <div>
-                        <div class="mini-stat-value">
-                            {{ $resumenInventario['movimientos_hoy'] }}
-                        </div>
-
-                        <div class="mini-stat-label">
-                            Movimientos hoy
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+        @endcan
 
     </div>
 
-    <div class="card bw-card">
+</div>
 
-        <div class="card-header">
+<div class="row g-3 mb-4">
 
-            <form method="GET" action="{{ route('inventario.index') }}" class="row g-2 align-items-end">
+    <div class="col-6 col-xl-3">
+        <div class="card bw-card mini-stat-card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
 
-                <div class="col-12 col-md-7">
+                <span class="mini-stat-icon bg-soft-purple text-brand">
+                    <i class="bi bi-box-seam-fill"></i>
+                </span>
 
-                    <label class="form-label">
-                        Buscar producto
-                    </label>
-
-                    <input type="search" name="buscar" class="form-control" placeholder="Código o nombre"
-                        value="{{ request('buscar') }}">
-
-                </div>
-
-                <div class="col-8 col-md-3">
-
-                    <label class="form-label">
-                        Estado
-                    </label>
-
-                    <select name="estado" class="form-select">
-                        <option value="">
-                            Todos
-                        </option>
-
-                        <option value="activo" @selected(request('estado') === 'activo')>
-                            Activos
-                        </option>
-
-                        <option value="inactivo" @selected(request('estado') === 'inactivo')>
-                            Inactivos
-                        </option>
-                    </select>
-
-                </div>
-
-                <div class="col-4 col-md-2">
-
-                    <div class="d-flex gap-2">
-
-                        <button type="submit" class="btn btn-outline-brand flex-grow-1">
-                            Filtrar
-                        </button>
-
-                        <a href="{{ route('inventario.index') }}" class="btn btn-light border">
-                            <i class="bi bi-arrow-counterclockwise"></i>
-                        </a>
-
+                <div>
+                    <div class="mini-stat-value">
+                        {{ $resumenInventario['productos'] }}
                     </div>
 
+                    <div class="mini-stat-label">
+                        Productos activos
+                    </div>
                 </div>
 
-            </form>
-
+            </div>
         </div>
+    </div>
 
-        <div class="table-responsive">
+    <div class="col-6 col-xl-3">
+        <div class="card bw-card mini-stat-card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
 
-            <table class="table align-middle">
+                <span class="mini-stat-icon bg-soft-warning text-warning-emphasis">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </span>
 
-                <thead>
+                <div>
+                    <div class="mini-stat-value">
+                        {{ $resumenInventario['bajos'] }}
+                    </div>
+
+                    <div class="mini-stat-label">
+                        Existencia baja
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-xl-3">
+        <div class="card bw-card mini-stat-card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+
+                <span class="mini-stat-icon bg-soft-danger text-danger">
+                    <i class="bi bi-box2-fill"></i>
+                </span>
+
+                <div>
+                    <div class="mini-stat-value">
+                        {{ $resumenInventario['sin_existencia'] }}
+                    </div>
+
+                    <div class="mini-stat-label">
+                        Sin existencia
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-xl-3">
+        <div class="card bw-card mini-stat-card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+
+                <span class="mini-stat-icon bg-soft-green text-green-bw">
+                    <i class="bi bi-arrow-left-right"></i>
+                </span>
+
+                <div>
+                    <div class="mini-stat-value">
+                        {{ $resumenInventario['movimientos_hoy'] }}
+                    </div>
+
+                    <div class="mini-stat-label">
+                        Movimientos hoy
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card bw-card">
+
+    <div class="card-header">
+
+        <form
+            method="GET"
+            action="{{ route('inventario.index') }}"
+            class="row g-2 align-items-end"
+        >
+
+            <div class="col-12 col-md-7">
+
+                <label class="form-label">
+                    Buscar producto
+                </label>
+
+                <input
+                    type="search"
+                    name="buscar"
+                    class="form-control"
+                    placeholder="Código o nombre"
+                    value="{{ request('buscar') }}"
+                >
+
+            </div>
+
+            <div class="col-8 col-md-3">
+
+                <label class="form-label">
+                    Estado
+                </label>
+
+                <select name="estado" class="form-select">
+
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <option
+                        value="activo"
+                        @selected(request('estado') === 'activo')
+                    >
+                        Activos
+                    </option>
+
+                    <option
+                        value="inactivo"
+                        @selected(request('estado') === 'inactivo')
+                    >
+                        Inactivos
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-4 col-md-2">
+
+                <div class="d-flex gap-2">
+
+                    <button
+                        type="submit"
+                        class="btn btn-outline-brand flex-grow-1"
+                    >
+                        Filtrar
+                    </button>
+
+                    <a
+                        href="{{ route('inventario.index') }}"
+                        class="btn btn-light border"
+                    >
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    {{-- ESCRITORIO / TABLET --}}
+    <div class="table-responsive d-none d-md-block">
+
+        <table class="table align-middle">
+
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Existencia actual</th>
+                    <th>Mínima</th>
+                    <th>Estado de inventario</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @forelse ($productos as $producto)
+
+                    @php
+                        $existencia = (float) $producto->existencia_actual;
+                        $minima = (float) $producto->existencia_minima;
+                    @endphp
+
                     <tr>
-                        <th>Producto</th>
-                        <th>Categoría</th>
-                        <th>Existencia actual</th>
-                        <th>Mínima</th>
-                        <th>Estado de inventario</th>
-                        <th class="text-end">Acciones</th>
-                    </tr>
-                </thead>
 
-                <tbody>
+                        <td>
+                            <div class="record-person compact-person">
 
-                    @forelse ($productos as $producto)
-
-                                    @php
-                                        $existencia = (float) $producto->existencia_actual;
-                                        $minima = (float) $producto->existencia_minima;
-                                    @endphp
-
-                                    <tr>
-
-                                        <td>
-                                            <div class="record-person compact-person">
-
-                                                <span class="list-avatar patient-avatar">
-                                                    <i class="bi bi-box-seam"></i>
-                                                </span>
-
-                                                <div>
-                                                    <a href="{{ route(
-                            'productos.show',
-                            $producto->id_producto
-                        ) }}" class="record-name">
-                                                        {{ $producto->nombre }}
-                                                    </a>
-
-                                                    <span class="record-subtitle">
-                                                        {{ $producto->codigo }}
-                                                    </span>
-                                                </div>
-
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <span class="service-chip">
-                                                <i class="bi bi-tag"></i>
-                                                {{ $producto->categoria?->nombre }}
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            <strong>
-                                                {{ number_format($existencia, 2) }}
-                                            </strong>
-
-                                            <span class="text-muted">
-                                                {{ $producto->unidad_medida }}
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            {{ number_format($minima, 2) }}
-                                            {{ $producto->unidad_medida }}
-                                        </td>
-
-                                        <td>
-
-                                            @if ($existencia <= 0)
-
-                                                <span class="badge-status status-cancelada">
-                                                    SIN EXISTENCIA
-                                                </span>
-
-                                            @elseif ($existencia <= $minima)
-
-                                                <span class="badge-status status-pendiente">
-                                                    EXISTENCIA BAJA
-                                                </span>
-
-                                            @else
-
-                                                <span class="badge-status status-confirmada">
-                                                    DISPONIBLE
-                                                </span>
-
-                                            @endif
-
-                                        </td>
-
-                                        <td class="text-end">
-
-                                            <a href="{{ route(
-                            'inventario.historial',
-                            ['producto' => $producto->id_producto]
-                        ) }}" class="btn btn-sm btn-light border" title="Ver movimientos">
-                                                <i class="bi bi-clock-history"></i>
-                                            </a>
-
-                                        </td>
-
-                                    </tr>
-
-                    @empty
-
-                        <tr>
-                            <td colspan="5">
-
-                                <div class="empty-state">
+                                <span class="list-avatar patient-avatar">
                                     <i class="bi bi-box-seam"></i>
-                                    No hay productos para mostrar.
+                                </span>
+
+                                <div>
+
+                                    @can('productos.ver')
+                                        <a
+                                            href="{{ route(
+                                                'productos.show',
+                                                $producto->id_producto
+                                            ) }}"
+                                            class="record-name"
+                                        >
+                                            {{ $producto->nombre }}
+                                        </a>
+                                    @else
+                                        <span class="record-name">
+                                            {{ $producto->nombre }}
+                                        </span>
+                                    @endcan
+
+                                    <span class="record-subtitle">
+                                        {{ $producto->codigo }}
+                                    </span>
+
                                 </div>
 
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
 
-                    @endforelse
+                        <td>
+                            <span class="service-chip">
+                                <i class="bi bi-tag"></i>
+                                {{ $producto->categoria?->nombre }}
+                            </span>
+                        </td>
 
-                </tbody>
+                        <td>
+                            <strong>
+                                {{ number_format($existencia, 2) }}
+                            </strong>
 
-            </table>
+                            <span class="text-muted">
+                                {{ $producto->unidad_medida }}
+                            </span>
+                        </td>
 
-        </div>
+                        <td>
+                            {{ number_format($minima, 2) }}
+                            {{ $producto->unidad_medida }}
+                        </td>
 
-        @if ($productos->hasPages())
-            <div class="card-footer bg-white border-0 pt-0">
-                {{ $productos->links('pagination::bootstrap-5') }}
-            </div>
-        @endif
+                        <td>
+
+                            @if ($existencia <= 0)
+
+                                <span class="badge-status status-cancelada">
+                                    SIN EXISTENCIA
+                                </span>
+
+                            @elseif ($existencia <= $minima)
+
+                                <span class="badge-status status-pendiente">
+                                    EXISTENCIA BAJA
+                                </span>
+
+                            @else
+
+                                <span class="badge-status status-confirmada">
+                                    DISPONIBLE
+                                </span>
+
+                            @endif
+
+                        </td>
+
+                        <td class="text-end">
+
+                            @can('inventario.ver')
+                                <a
+                                    href="{{ route(
+                                        'inventario.historial',
+                                        ['producto' => $producto->id_producto]
+                                    ) }}"
+                                    class="btn btn-sm btn-light border"
+                                    title="Ver movimientos"
+                                >
+                                    <i class="bi bi-clock-history"></i>
+                                </a>
+                            @endcan
+
+                        </td>
+
+                    </tr>
+
+                @empty
+
+                    <tr>
+                        <td colspan="6">
+
+                            <div class="empty-state">
+                                <i class="bi bi-box-seam"></i>
+                                No hay productos para mostrar.
+                            </div>
+
+                        </td>
+                    </tr>
+
+                @endforelse
+
+            </tbody>
+
+        </table>
 
     </div>
+
+
+    {{-- MÓVIL --}}
+    <div class="d-md-none p-3">
+
+        @forelse ($productos as $producto)
+
+            @php
+                $existencia = (float) $producto->existencia_actual;
+                $minima = (float) $producto->existencia_minima;
+            @endphp
+
+            <div class="card bw-card mb-3">
+
+                <div class="card-body">
+
+                    {{-- PRODUCTO Y ESTADO --}}
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+
+                        <div class="record-person compact-person min-w-0">
+
+                            <span class="list-avatar patient-avatar flex-shrink-0">
+                                <i class="bi bi-box-seam"></i>
+                            </span>
+
+                            <div class="min-w-0">
+
+                                @can('productos.ver')
+                                    <a
+                                        href="{{ route(
+                                            'productos.show',
+                                            $producto->id_producto
+                                        ) }}"
+                                        class="record-name"
+                                    >
+                                        {{ $producto->nombre }}
+                                    </a>
+                                @else
+                                    <span class="record-name">
+                                        {{ $producto->nombre }}
+                                    </span>
+                                @endcan
+
+                                <span class="record-subtitle">
+                                    {{ $producto->codigo }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        @if ($existencia <= 0)
+
+                            <span class="badge-status status-cancelada flex-shrink-0 text-nowrap">
+                                SIN EXISTENCIA
+                            </span>
+
+                        @elseif ($existencia <= $minima)
+
+                            <span class="badge-status status-pendiente flex-shrink-0 text-nowrap">
+                                EXISTENCIA BAJA
+                            </span>
+
+                        @else
+
+                            <span class="badge-status status-confirmada flex-shrink-0 text-nowrap">
+                                DISPONIBLE
+                            </span>
+
+                        @endif
+
+                    </div>
+
+
+                    {{-- INFORMACIÓN --}}
+                    <div class="row g-3 small">
+
+                        <div class="col-12">
+
+                            <div class="text-muted mb-1">
+                                Categoría
+                            </div>
+
+                            <span class="service-chip">
+                                <i class="bi bi-tag"></i>
+                                {{ $producto->categoria?->nombre }}
+                            </span>
+
+                        </div>
+
+                        <div class="col-6">
+
+                            <div class="text-muted mb-1">
+                                Existencia actual
+                            </div>
+
+                            <div class="fw-semibold text-nowrap">
+                                {{ number_format($existencia, 2) }}
+                                {{ $producto->unidad_medida }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-6">
+
+                            <div class="text-muted mb-1">
+                                Existencia mínima
+                            </div>
+
+                            <div class="fw-semibold text-nowrap">
+                                {{ number_format($minima, 2) }}
+                                {{ $producto->unidad_medida }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- ACCIONES --}}
+                    @can('inventario.ver')
+
+                        <hr>
+
+                        <a
+                            href="{{ route(
+                                'inventario.historial',
+                                ['producto' => $producto->id_producto]
+                            ) }}"
+                            class="btn btn-light border w-100"
+                        >
+                            <i class="bi bi-clock-history me-1"></i>
+                            Ver movimientos
+                        </a>
+
+                    @endcan
+
+                </div>
+
+            </div>
+
+        @empty
+
+            <div class="empty-state">
+                <i class="bi bi-box-seam"></i>
+                No hay productos para mostrar.
+            </div>
+
+        @endforelse
+
+    </div>
+
+
+    @if ($productos->hasPages())
+        <div class="card-footer bg-white border-0 pt-0">
+            {{ $productos->links('pagination::bootstrap-5') }}
+        </div>
+    @endif
+
+</div>
 
 @endsection

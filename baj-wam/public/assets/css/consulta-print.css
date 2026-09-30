@@ -1,0 +1,364 @@
+
+        @media print {
+
+            @page {
+                size: A4 portrait;
+                margin: 9mm;
+            }
+
+
+            /* OCULTAR ELEMENTOS DE INTERFAZ */
+
+            .no-print,
+            .app-sidebar,
+            .app-topbar,
+            .sidebar,
+            nav,
+            footer {
+                display: none !important;
+            }
+
+
+            /* DOCUMENTO */
+
+            html,
+            body {
+                width: 100% !important;
+                min-width: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                font-size: 9pt !important;
+            }
+
+            .app-shell,
+            .app-main,
+            .main-content,
+            .content-wrapper,
+            main {
+                width: 100% !important;
+                max-width: none !important;
+                min-width: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+            }
+
+
+            /* ENCABEZADO DE PÁGINA */
+
+            .page-header {
+                margin: 0 0 7px !important;
+                padding: 0 !important;
+            }
+
+            .page-eyebrow {
+                font-size: 7.5pt !important;
+                margin-bottom: 1px !important;
+            }
+
+            .page-title {
+                font-size: 16pt !important;
+                line-height: 1.1 !important;
+                margin: 0 0 2px !important;
+            }
+
+            .page-subtitle {
+                font-size: 8pt !important;
+                line-height: 1.2 !important;
+                margin: 0 !important;
+            }
+
+
+            /* INFORMACIÓN PRINCIPAL */
+
+            .consultation-hero {
+                margin: 0 0 7px !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+                box-shadow: none !important;
+            }
+
+            .consultation-hero>.card-body {
+                padding: 9px 11px !important;
+            }
+
+            .consultation-hero .row {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                margin: 0 !important;
+            }
+
+            .consultation-hero .col-12.col-lg-7 {
+                width: 58% !important;
+                max-width: 58% !important;
+                flex: 0 0 58% !important;
+                padding: 0 8px 0 0 !important;
+            }
+
+            .consultation-hero .col-12.col-lg-5 {
+                width: 42% !important;
+                max-width: 42% !important;
+                flex: 0 0 42% !important;
+                padding: 0 !important;
+            }
+
+            .patient-detail-avatar {
+                width: 42px !important;
+                height: 42px !important;
+                min-width: 42px !important;
+                font-size: 12pt !important;
+            }
+
+            .record-hero-title {
+                font-size: 13pt !important;
+                line-height: 1.15 !important;
+                margin-bottom: 1px !important;
+            }
+
+            .consultation-hero .text-secondary {
+                font-size: 8pt !important;
+            }
+
+            .role-badge,
+            .service-chip {
+                font-size: 7.5pt !important;
+            }
+
+            .consultation-meta-card {
+                padding: 7px 9px !important;
+            }
+
+            .consultation-meta-card>div {
+                margin: 0 0 3px !important;
+            }
+
+            .consultation-meta-card>div:last-child {
+                margin-bottom: 0 !important;
+            }
+
+            .consultation-meta-card span {
+                font-size: 7pt !important;
+            }
+
+            .consultation-meta-card strong {
+                font-size: 8pt !important;
+            }
+
+
+            /* CONTENIDO PRINCIPAL */
+
+            .consultation-content {
+                display: block !important;
+                margin: 0 !important;
+            }
+
+            .consultation-main-column,
+            .consultation-side-column {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                flex: none !important;
+                padding: 0 !important;
+            }
+
+
+            /* TARJETAS */
+
+            .bw-card,
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #d8d8d8 !important;
+            }
+
+            .card-header {
+                min-height: 0 !important;
+                padding: 6px 9px !important;
+            }
+
+            .card-title-sm {
+                font-size: 9.5pt !important;
+                line-height: 1.1 !important;
+            }
+
+
+            /* REGISTRO CLÍNICO */
+
+            .clinical-record-card {
+                margin: 0 0 7px !important;
+            }
+
+            .clinical-record-body {
+                padding: 6px 8px !important;
+                gap: 3px !important;
+            }
+
+            .clinical-note-block {
+                display: flex !important;
+                padding: 5px 7px !important;
+                margin: 0 !important;
+                gap: 6px !important;
+                min-height: 0 !important;
+
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .clinical-note-icon {
+                width: 25px !important;
+                height: 25px !important;
+                min-width: 25px !important;
+                font-size: 8pt !important;
+            }
+
+            .clinical-note-block h3 {
+                font-size: 8pt !important;
+                line-height: 1.1 !important;
+                margin: 0 0 1px !important;
+            }
+
+            .clinical-note-block p {
+                font-size: 8pt !important;
+                line-height: 1.2 !important;
+                margin: 0 !important;
+            }
+
+
+            /* PRODUCTOS */
+
+            .products-card {
+                margin: 0 0 7px !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .products-card .card-header p {
+                font-size: 7.5pt !important;
+            }
+
+            /*
+                 * EN PANTALLA:
+                 * Bootstrap controla escritorio/móvil.
+                 *
+                 * EN IMPRESIÓN:
+                 * Siempre imprimimos la tabla.
+                 */
+
+            .products-desktop {
+                display: block !important;
+                overflow: visible !important;
+            }
+
+            .products-mobile {
+                display: none !important;
+            }
+
+            .products-card table {
+                width: 100% !important;
+                margin: 0 !important;
+                font-size: 7.5pt !important;
+            }
+
+            .products-card table th,
+            .products-card table td {
+                padding: 4px 6px !important;
+                vertical-align: top !important;
+            }
+
+            .products-card thead {
+                display: table-header-group !important;
+            }
+
+            .products-card tr {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+
+            /* DATOS RELACIONADOS */
+
+            .related-data-card {
+                margin: 0 0 7px !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .related-data-body {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                column-gap: 18px !important;
+                row-gap: 5px !important;
+                padding: 7px 9px !important;
+            }
+
+            .related-data-body .detail-item {
+                margin: 0 !important;
+                padding: 0 !important;
+                min-height: 0 !important;
+
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .detail-label {
+                display: block !important;
+                font-size: 7pt !important;
+                line-height: 1.1 !important;
+                margin-bottom: 1px !important;
+            }
+
+            .detail-value {
+                font-size: 8pt !important;
+                line-height: 1.15 !important;
+            }
+
+            .related-data-body a.detail-value {
+                color: inherit !important;
+                text-decoration: none !important;
+            }
+
+
+            /* CONFIDENCIALIDAD */
+
+            .privacy-print {
+                display: flex !important;
+                padding: 6px 9px !important;
+                margin: 0 !important;
+                gap: 7px !important;
+
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .privacy-print strong {
+                font-size: 8pt !important;
+            }
+
+            .privacy-print p {
+                font-size: 7.5pt !important;
+                line-height: 1.15 !important;
+                margin: 0 !important;
+            }
+
+
+            /* EVITAR CORTES */
+
+            h1,
+            h2,
+            h3,
+            strong,
+            .detail-item {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+
+            /* COLORES DE IMPRESIÓN */
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+        }
+

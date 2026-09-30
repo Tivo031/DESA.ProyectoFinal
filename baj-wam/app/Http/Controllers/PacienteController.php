@@ -155,6 +155,7 @@ class PacienteController extends Controller
                         'servicio',
                         'estado',
                         'especialista.usuario',
+                        'consulta',
                     ])->orderByDesc('inicio');
                 },
             ])->findOrFail($id);

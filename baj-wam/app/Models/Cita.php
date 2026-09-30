@@ -76,4 +76,12 @@ class Cita extends Model
             'id_usuario'
         );
     }
+    public function consulta()
+    {
+        return $this->hasOne(
+            Consulta::class,
+            'id_cita',
+            'id_cita'
+        );
+    }
 }

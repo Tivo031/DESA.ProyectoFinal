@@ -13,10 +13,12 @@
         </p>
     </div>
 
-    <a href="{{ route('pacientes.create') }}" class="btn btn-brand">
-        <i class="bi bi-person-plus-fill me-2"></i>
-        Nuevo paciente
-    </a>
+    @can('pacientes.crear')
+        <a href="{{ route('pacientes.create') }}" class="btn btn-brand">
+            <i class="bi bi-person-plus-fill me-2"></i>
+            Nuevo paciente
+        </a>
+    @endcan
 </div>
 
 <div class="row g-3 mb-4">
@@ -166,7 +168,9 @@
 
     </div>
 
-    <div class="table-responsive">
+
+    {{-- ESCRITORIO / TABLET --}}
+    <div class="table-responsive d-none d-md-block">
 
         <table class="table align-middle">
 
@@ -203,13 +207,20 @@
 
                                 <div class="min-w-0">
 
-                                    <a
-                                        href="{{ route('pacientes.show', $paciente->id_paciente) }}"
-                                        class="record-name"
-                                    >
-                                        {{ $paciente->nombres }}
-                                        {{ $paciente->apellidos }}
-                                    </a>
+                                    @can('pacientes.ver')
+                                        <a
+                                            href="{{ route('pacientes.show', $paciente->id_paciente) }}"
+                                            class="record-name"
+                                        >
+                                            {{ $paciente->nombres }}
+                                            {{ $paciente->apellidos }}
+                                        </a>
+                                    @else
+                                        <span class="record-name">
+                                            {{ $paciente->nombres }}
+                                            {{ $paciente->apellidos }}
+                                        </span>
+                                    @endcan
 
                                     <span class="record-subtitle">
                                         {{ $paciente->correo ?: 'Sin correo' }}
@@ -255,44 +266,48 @@
 
                             <div class="table-actions justify-content-end">
 
-                                <a
-                                    href="{{ route('pacientes.show', $paciente->id_paciente) }}"
-                                    class="btn btn-sm btn-light border"
-                                    title="Ver paciente"
-                                >
-                                    <i class="bi bi-eye"></i>
-                                </a>
-
-                                <a
-                                    href="{{ route('pacientes.edit', $paciente->id_paciente) }}"
-                                    class="btn btn-sm btn-light border"
-                                    title="Editar paciente"
-                                >
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-
-                                @if ($paciente->activo)
-
-                                    <form
-                                        method="POST"
-                                        action="{{ route('pacientes.destroy', $paciente->id_paciente) }}"
-                                        class="d-inline"
+                                @can('pacientes.ver')
+                                    <a
+                                        href="{{ route('pacientes.show', $paciente->id_paciente) }}"
+                                        class="btn btn-sm btn-light border"
+                                        title="Ver paciente"
                                     >
-                                        @csrf
-                                        @method('DELETE')
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                @endcan
 
-                                        <button
-                                            type="submit"
-                                            class="btn btn-sm btn-light border text-danger"
-                                            title="Desactivar paciente"
-                                            data-confirm-delete="El paciente quedará inactivo. ¿Deseas continuar?"
+                                @can('pacientes.editar')
+                                    <a
+                                        href="{{ route('pacientes.edit', $paciente->id_paciente) }}"
+                                        class="btn btn-sm btn-light border"
+                                        title="Editar paciente"
+                                    >
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    @if ($paciente->activo)
+
+                                        <form
+                                            method="POST"
+                                            action="{{ route('pacientes.destroy', $paciente->id_paciente) }}"
+                                            class="d-inline"
                                         >
-                                            <i class="bi bi-person-x"></i>
-                                        </button>
+                                            @csrf
+                                            @method('DELETE')
 
-                                    </form>
+                                            <button
+                                                type="submit"
+                                                class="btn btn-sm btn-light border text-danger"
+                                                title="Desactivar paciente"
+                                                data-confirm-delete="El paciente quedará inactivo. ¿Deseas continuar?"
+                                            >
+                                                <i class="bi bi-person-x"></i>
+                                            </button>
 
-                                @endif
+                                        </form>
+
+                                    @endif
+                                @endcan
 
                             </div>
 
@@ -318,6 +333,188 @@
         </table>
 
     </div>
+
+
+    {{-- MÓVIL --}}
+    <div class="d-md-none p-3">
+
+        @forelse ($pacientes as $paciente)
+
+            @php
+                $iniciales = strtoupper(
+                    mb_substr($paciente->nombres, 0, 1) .
+                    mb_substr($paciente->apellidos, 0, 1)
+                );
+            @endphp
+
+            <div class="card bw-card mb-3">
+
+                <div class="card-body">
+
+                    {{-- PACIENTE Y ESTADO --}}
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+
+                        <div class="record-person compact-person min-w-0">
+
+                            <span class="list-avatar patient-avatar flex-shrink-0">
+                                {{ $iniciales ?: 'P' }}
+                            </span>
+
+                            <div class="min-w-0">
+
+                                @can('pacientes.ver')
+                                    <a
+                                        href="{{ route('pacientes.show', $paciente->id_paciente) }}"
+                                        class="record-name"
+                                    >
+                                        {{ $paciente->nombres }}
+                                        {{ $paciente->apellidos }}
+                                    </a>
+                                @else
+                                    <span class="record-name">
+                                        {{ $paciente->nombres }}
+                                        {{ $paciente->apellidos }}
+                                    </span>
+                                @endcan
+
+                                <span class="record-subtitle">
+                                    {{ $paciente->correo ?: 'Sin correo' }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        @if ($paciente->activo)
+
+                            <span class="badge-status status-confirmada flex-shrink-0 text-nowrap">
+                                ACTIVO
+                            </span>
+
+                        @else
+
+                            <span class="badge-status status-cancelada flex-shrink-0 text-nowrap">
+                                INACTIVO
+                            </span>
+
+                        @endif
+
+                    </div>
+
+
+                    {{-- INFORMACIÓN --}}
+                    <div class="row g-3 small">
+
+                        <div class="col-6">
+
+                            <div class="text-muted mb-1">
+                                DPI
+                            </div>
+
+                            <div class="fw-semibold">
+                                {{ $paciente->dpi ?: 'Sin DPI' }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-6">
+
+                            <div class="text-muted mb-1">
+                                Sexo
+                            </div>
+
+                            <div class="fw-semibold">
+                                {{ $paciente->sexo ?: 'No especificado' }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <div class="text-muted mb-1">
+                                Contacto
+                            </div>
+
+                            <div class="fw-semibold">
+                                <i class="bi bi-telephone me-1 text-muted"></i>
+                                {{ $paciente->telefono }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- ACCIONES --}}
+                    @canany(['pacientes.ver', 'pacientes.editar'])
+
+                        <hr>
+
+                        <div class="d-flex gap-2">
+
+                            @can('pacientes.ver')
+                                <a
+                                    href="{{ route('pacientes.show', $paciente->id_paciente) }}"
+                                    class="btn btn-light border flex-grow-1"
+                                >
+                                    <i class="bi bi-eye me-1"></i>
+                                    Ver
+                                </a>
+                            @endcan
+
+                            @can('pacientes.editar')
+                                <a
+                                    href="{{ route('pacientes.edit', $paciente->id_paciente) }}"
+                                    class="btn btn-light border flex-grow-1"
+                                >
+                                    <i class="bi bi-pencil me-1"></i>
+                                    Editar
+                                </a>
+
+                                @if ($paciente->activo)
+
+                                    <form
+                                        method="POST"
+                                        action="{{ route('pacientes.destroy', $paciente->id_paciente) }}"
+                                        class="flex-grow-1"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-light border text-danger w-100"
+                                            title="Desactivar paciente"
+                                            data-confirm-delete="El paciente quedará inactivo. ¿Deseas continuar?"
+                                        >
+                                            <i class="bi bi-person-x me-1"></i>
+                                            Desactivar
+                                        </button>
+
+                                    </form>
+
+                                @endif
+                            @endcan
+
+                        </div>
+
+                    @endcanany
+
+                </div>
+
+            </div>
+
+        @empty
+
+            <div class="empty-state">
+                <i class="bi bi-people"></i>
+                No hay pacientes que coincidan con los filtros.
+            </div>
+
+        @endforelse
+
+    </div>
+
 
     @if ($pacientes->hasPages())
         <div class="card-footer bg-white border-0 pt-0">
