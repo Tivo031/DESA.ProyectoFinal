@@ -22,7 +22,7 @@
         <div>
             <div class="page-eyebrow">
                 Usuarios
-            </div>
+            </div> 
 
             <h1 class="page-title">
                 Detalle del usuario
@@ -40,10 +40,12 @@
                 Regresar
             </a>
 
-            <a href="{{ url('/usuarios/' . $usuario->id_usuario . '/edit') }}" class="btn btn-brand">
-                <i class="bi bi-pencil-square me-2"></i>
-                Editar
-            </a>
+            @can('usuarios.editar')
+                <a href="{{ url('/usuarios/' . $usuario->id_usuario . '/edit') }}" class="btn btn-brand">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Editar
+                </a>
+            @endcan
 
         </div>
     </div>

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Permiso;
 use App\Models\Rol;
+use App\Models\Usuario;
+use DomainException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -393,12 +395,37 @@ class RolController extends Controller
             DB::transaction(
                 function () use ($rol, $datos, $puedeAdministrarPermisos, $puedeCambiarEstado) {
 
+                    $rolBloqueado = Rol::lockForUpdate()
+                        ->findOrFail($rol->id_rol);
+
+                    if (
+                        $puedeCambiarEstado
+                        && $rolBloqueado->activo
+                        && !(bool) $datos['activo']
+                        && $this->tieneUsuariosActivosBloqueados($rolBloqueado)
+                    ) {
+                        throw new DomainException(
+                            'No es posible desactivar el rol porque tiene usuarios activos asignados.'
+                        );
+                    }
+
+                    if (
+                        $rolBloqueado->nombre === 'ADMINISTRADOR'
+                        && $datos['nombre'] !== 'ADMINISTRADOR'
+                        && $rolBloqueado->activo
+                        && $this->tieneUsuariosActivosBloqueados($rolBloqueado)
+                    ) {
+                        throw new DomainException(
+                            'No es posible cambiar el nombre del rol ADMINISTRADOR mientras tenga usuarios activos asignados.'
+                        );
+                    }
+
                     // ROL
     
-                    $rol->nombre =
+                    $rolBloqueado->nombre =
                         $datos['nombre'];
 
-                    $rol->descripcion =
+                    $rolBloqueado->descripcion =
                         $datos['descripcion'];
 
 
@@ -406,18 +433,18 @@ class RolController extends Controller
     
                     if ($puedeCambiarEstado) {
 
-                        $rol->activo =
+                        $rolBloqueado->activo =
                             (bool) $datos['activo'];
                     }
 
-                    $rol->save();
+                    $rolBloqueado->save();
 
 
                     // PERMISOS
     
                     if ($puedeAdministrarPermisos) {
 
-                        $rol->permisos()->sync(
+                        $rolBloqueado->permisos()->sync(
                             $datos['permisos'] ?? []
                         );
                     }
@@ -431,6 +458,10 @@ class RolController extends Controller
                     'El rol fue actualizado correctamente.'
                 );
 
+        } catch (DomainException $e) {
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
         } catch (Throwable $e) {
 
             Log::error(
@@ -458,10 +489,27 @@ class RolController extends Controller
         $rol = Rol::findOrFail($id);
 
         try {
+            $resultado = DB::transaction(function () use ($rol) {
+                $rolBloqueado = Rol::lockForUpdate()
+                    ->findOrFail($rol->id_rol);
 
-            // VALIDAR ESTADO
+                if (!$rolBloqueado->activo) {
+                    return 'inactivo';
+                }
 
-            if (!$rol->activo) {
+                if ($this->tieneUsuariosActivosBloqueados($rolBloqueado)) {
+                    throw new DomainException(
+                        'No es posible desactivar el rol porque tiene usuarios activos asignados.'
+                    );
+                }
+
+                $rolBloqueado->activo = false;
+                $rolBloqueado->save();
+
+                return 'desactivado';
+            });
+
+            if ($resultado === 'inactivo') {
                 return redirect()
                     ->route('roles.index')
                     ->with(
@@ -470,26 +518,6 @@ class RolController extends Controller
                     );
             }
 
-            // VALIDAR USUARIOS ACTIVOS
-
-            $tieneUsuariosActivos = $rol->usuarios()
-                ->where('activo', true)
-                ->exists();
-
-            if ($tieneUsuariosActivos) {
-                return redirect()
-                    ->route('roles.index')
-                    ->with(
-                        'error',
-                        'No es posible desactivar el rol porque tiene usuarios activos asignados.'
-                    );
-            }
-
-            // DESACTIVAR
-
-            $rol->activo = false;
-            $rol->save();
-
             return redirect()
                 ->route('roles.index')
                 ->with(
@@ -497,6 +525,10 @@ class RolController extends Controller
                     'El rol fue desactivado correctamente.'
                 );
 
+        } catch (DomainException $e) {
+            return redirect()
+                ->route('roles.index')
+                ->with('error', $e->getMessage());
         } catch (Throwable $e) {
 
             Log::error(
@@ -517,5 +549,15 @@ class RolController extends Controller
                     'No fue posible desactivar el rol. Inténtalo nuevamente.'
                 );
         }
+    }
+
+    private function tieneUsuariosActivosBloqueados(Rol $rol): bool
+    {
+        return Usuario::where('id_rol', $rol->id_rol)
+            ->where('activo', true)
+            ->orderBy('id_usuario')
+            ->lockForUpdate()
+            ->get()
+            ->isNotEmpty();
     }
 }

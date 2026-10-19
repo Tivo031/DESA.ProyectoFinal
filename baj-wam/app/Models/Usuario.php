@@ -49,7 +49,30 @@ class Usuario extends Authenticatable
 
     public function tienePermiso(string $codigo): bool
     {
+        $rol = $this->relationLoaded('rol')
+            ? $this->getRelation('rol')
+            : null;
+
+        if ($rol) {
+            if (!$rol->activo) {
+                return false;
+            }
+
+            if ($rol->relationLoaded('permisos')) {
+                return $rol->permisos->contains(function ($permiso) use ($codigo) {
+                    return $permiso->codigo === $codigo
+                        && $permiso->activo;
+                });
+            }
+
+            return $rol->permisos()
+                ->where('codigo', $codigo)
+                ->where('activo', true)
+                ->exists();
+        }
+
         return $this->rol()
+            ->where('activo', true)
             ->whereHas('permisos', function ($query) use ($codigo) {
                 $query->where('codigo', $codigo)
                     ->where('activo', true);

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use DomainException;
 use Throwable;
 use Illuminate\Validation\Rule;
 
@@ -129,7 +130,9 @@ class UsuarioController extends Controller
     public function create()
     {
         try {
-            $roles = Rol::orderBy('nombre')->get();
+            $roles = Rol::where('activo', true)
+                ->orderBy('nombre')
+                ->get();
 
             return view(
                 'usuarios.create',
@@ -207,10 +210,11 @@ class UsuarioController extends Controller
                     'unique:usuarios,usuario',
                 ],
 
-                'id_rol' => [
-                    'required',
-                    'integer',
-                    'exists:roles,id_rol',
+            'id_rol' => [
+                'required',
+                'integer',
+                Rule::exists('roles', 'id_rol')
+                    ->where('activo', true),
                 ],
 
                 'password' => [
@@ -280,18 +284,29 @@ class UsuarioController extends Controller
         );
 
         try {
-            Usuario::create([
-                'id_rol' => $datos['id_rol'],
-                'nombres' => $datos['nombres'],
-                'apellidos' => $datos['apellidos'],
-                'correo' => $datos['correo'],
-                'telefono' => $datos['telefono'] ?: null,
-                'usuario' => $datos['usuario'],
-                'password' => Hash::make(
-                    $datos['password']
-                ),
-                'activo' => $datos['activo'],
-            ]);
+            DB::transaction(function () use ($datos) {
+                $rol = Rol::lockForUpdate()
+                    ->findOrFail($datos['id_rol']);
+
+                if (!$rol->activo) {
+                    throw new DomainException(
+                        'El rol seleccionado ya no está activo.'
+                    );
+                }
+
+                Usuario::create([
+                    'id_rol' => $rol->id_rol,
+                    'nombres' => $datos['nombres'],
+                    'apellidos' => $datos['apellidos'],
+                    'correo' => $datos['correo'],
+                    'telefono' => $datos['telefono'] ?: null,
+                    'usuario' => $datos['usuario'],
+                    'password' => Hash::make(
+                        $datos['password']
+                    ),
+                    'activo' => $datos['activo'],
+                ]);
+            });
 
             return redirect()
                 ->route('usuarios.index')
@@ -299,6 +314,15 @@ class UsuarioController extends Controller
                     'success',
                     'El usuario fue creado correctamente.'
                 );
+        } catch (DomainException $e) {
+            return back()
+                ->withInput(
+                    $request->except([
+                        'password',
+                        'password_confirmation',
+                    ])
+                )
+                ->withErrors(['id_rol' => $e->getMessage()]);
         } catch (Throwable $e) {
             Log::error(
                 'Error al crear un usuario.',
@@ -421,7 +445,9 @@ class UsuarioController extends Controller
         try {
             $usuario = Usuario::findOrFail($id);
 
-            $roles = Rol::orderBy('nombre')->get();
+            $roles = Rol::where('activo', true)
+                ->orderBy('nombre')
+                ->get();
 
             return view('usuarios.edit', compact('usuario', 'roles'));
 
@@ -500,7 +526,8 @@ class UsuarioController extends Controller
             'id_rol' => [
                 'required',
                 'integer',
-                'exists:roles,id_rol',
+                Rule::exists('roles', 'id_rol')
+                    ->where('activo', true),
             ],
         ];
 
@@ -566,21 +593,68 @@ class UsuarioController extends Controller
         );
 
         try {
+            DB::transaction(function () use (
+                $id,
+                $datos,
+                $puedeCambiarEstado,
+                $request
+            ) {
+                $rolSeleccionado = Rol::lockForUpdate()
+                    ->findOrFail($datos['id_rol']);
 
-            $usuario->nombres = $datos['nombres'];
-            $usuario->apellidos = $datos['apellidos'];
-            $usuario->correo = $datos['correo'];
-            $usuario->telefono = $datos['telefono'] ?: null;
-            $usuario->usuario = $datos['usuario'];
-            $usuario->id_rol = $datos['id_rol'];
+                if (!$rolSeleccionado->activo) {
+                    throw new DomainException(
+                        'El rol seleccionado ya no está activo.'
+                    );
+                }
 
-            // ESTADO
+                [$rolAdministrador, $administradoresActivos] =
+                    $this->bloquearAdministradoresActivos();
 
-            if ($puedeCambiarEstado) {
-                $usuario->activo = (bool) $datos['activo'];
-            }
+                $usuarioBloqueado = Usuario::lockForUpdate()
+                    ->findOrFail($id);
 
-            $usuario->save();
+                $seDesactiva = $puedeCambiarEstado
+                    && !(bool) $datos['activo'];
+
+                if (
+                    $seDesactiva
+                    && $request->user()->id_usuario === $usuarioBloqueado->id_usuario
+                ) {
+                    throw new DomainException(
+                        'No puedes desactivar tu propia cuenta.'
+                    );
+                }
+
+                $dejaDeSerAdministrador = $rolAdministrador
+                    && $rolSeleccionado->id_rol !== $rolAdministrador->id_rol;
+
+                if (
+                    $this->esAdministradorActivo(
+                        $usuarioBloqueado,
+                        $rolAdministrador
+                    )
+                    && ($seDesactiva || $dejaDeSerAdministrador)
+                    && $administradoresActivos->count() <= 1
+                ) {
+                    throw new DomainException(
+                        'No es posible modificar al último administrador activo del sistema.'
+                    );
+                }
+
+                $usuarioBloqueado->nombres = $datos['nombres'];
+                $usuarioBloqueado->apellidos = $datos['apellidos'];
+                $usuarioBloqueado->correo = $datos['correo'];
+                $usuarioBloqueado->telefono = $datos['telefono'] ?: null;
+                $usuarioBloqueado->usuario = $datos['usuario'];
+                $usuarioBloqueado->id_rol = $rolSeleccionado->id_rol;
+
+                if ($puedeCambiarEstado) {
+                    $usuarioBloqueado->activo = (bool) $datos['activo'];
+                }
+
+                $usuarioBloqueado->save();
+            });
 
             return redirect()
                 ->route('usuarios.index')
@@ -589,6 +663,10 @@ class UsuarioController extends Controller
                     'El usuario fue actualizado correctamente.'
                 );
 
+        } catch (DomainException $e) {
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
         } catch (Throwable $e) {
 
             Log::error(
@@ -612,13 +690,45 @@ class UsuarioController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $usuario = Usuario::findOrFail($id);
-
         try {
+            $resultado = DB::transaction(function () use ($request, $id) {
+                $usuario = Usuario::lockForUpdate()
+                    ->findOrFail($id);
 
-            if (!$usuario->activo) {
+                if (!$usuario->activo) {
+                    return 'inactivo';
+                }
+
+                if ($request->user()->id_usuario === $usuario->id_usuario) {
+                    throw new DomainException(
+                        'No puedes desactivar tu propia cuenta.'
+                    );
+                }
+
+                [$rolAdministrador, $administradoresActivos] =
+                    $this->bloquearAdministradoresActivos();
+
+                if (
+                    $this->esAdministradorActivo(
+                        $usuario,
+                        $rolAdministrador
+                    )
+                    && $administradoresActivos->count() <= 1
+                ) {
+                    throw new DomainException(
+                        'No es posible desactivar al último administrador activo del sistema.'
+                    );
+                }
+
+                $usuario->activo = false;
+                $usuario->save();
+
+                return 'desactivado';
+            });
+
+            if ($resultado === 'inactivo') {
                 return redirect()
                     ->route('usuarios.index')
                     ->with(
@@ -627,9 +737,6 @@ class UsuarioController extends Controller
                     );
             }
 
-            $usuario->activo = false;
-            $usuario->save();
-
             return redirect()
                 ->route('usuarios.index')
                 ->with(
@@ -637,6 +744,10 @@ class UsuarioController extends Controller
                     'El usuario fue desactivado correctamente.'
                 );
 
+        } catch (DomainException $e) {
+            return redirect()
+                ->route('usuarios.index')
+                ->with('error', $e->getMessage());
         } catch (Throwable $e) {
 
             Log::error(
@@ -645,8 +756,7 @@ class UsuarioController extends Controller
                     'mensaje' => $e->getMessage(),
                     'archivo' => $e->getFile(),
                     'linea' => $e->getLine(),
-                    'id_usuario' => $usuario->id_usuario,
-                    'usuario' => $usuario->usuario,
+                    'id_usuario' => $id,
                 ]
             );
 
@@ -657,5 +767,34 @@ class UsuarioController extends Controller
                     'No fue posible desactivar el usuario. Inténtalo nuevamente.'
                 );
         }
+    }
+
+    private function bloquearAdministradoresActivos(): array
+    {
+        $rolAdministrador = Rol::where('nombre', 'ADMINISTRADOR')
+            ->where('activo', true)
+            ->lockForUpdate()
+            ->first();
+
+        if (!$rolAdministrador) {
+            return [null, collect()];
+        }
+
+        $administradoresActivos = Usuario::where('id_rol', $rolAdministrador->id_rol)
+            ->where('activo', true)
+            ->orderBy('id_usuario')
+            ->lockForUpdate()
+            ->get();
+
+        return [$rolAdministrador, $administradoresActivos];
+    }
+
+    private function esAdministradorActivo(
+        Usuario $usuario,
+        ?Rol $rolAdministrador
+    ): bool {
+        return $rolAdministrador
+            && $usuario->activo
+            && $usuario->id_rol === $rolAdministrador->id_rol;
     }
 }

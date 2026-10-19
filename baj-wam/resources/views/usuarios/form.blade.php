@@ -4,6 +4,8 @@
 
     $idUsuario = data_get($usuario, 'id_usuario');
     $activoActual = old('activo', data_get($usuario, 'activo', true));
+    $puedeCambiarEstado = auth()->user()?->can('usuarios.desactivar')
+        && (!$esEdicion || (int) $idUsuario !== (int) auth()->id());
 @endphp
 
 <form id="formUsuario" method="POST" action="{{ $esEdicion ? url('/usuarios/' . $idUsuario) : url('/usuarios') }}"
@@ -219,7 +221,7 @@
                     </div>
                 @endif
 
-                @can('usuarios.desactivar')
+                @if ($puedeCambiarEstado)
                     <div class="col-12">
                         <div class="status-switch-panel">
                             <div>
@@ -246,7 +248,7 @@
                             </div>
                         </div>
                     </div>
-                @endcan
+                @endif
 
             </div>
         </div>
