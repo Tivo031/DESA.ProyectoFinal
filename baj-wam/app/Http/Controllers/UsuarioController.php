@@ -210,11 +210,11 @@ class UsuarioController extends Controller
                     'unique:usuarios,usuario',
                 ],
 
-            'id_rol' => [
-                'required',
-                'integer',
-                Rule::exists('roles', 'id_rol')
-                    ->where('activo', true),
+                'id_rol' => [
+                    'required',
+                    'integer',
+                    Rule::exists('roles', 'id_rol')
+                        ->where('activo', true),
                 ],
 
                 'password' => [
@@ -531,10 +531,22 @@ class UsuarioController extends Controller
             ],
         ];
 
+        // VALIDAR EDICIÓN DE CUENTA PROPIA
+
+        $esCuentaPropia =
+            (int) $request->user()->id_usuario === (int) $usuario->id_usuario;
+
+        if ($esCuentaPropia && (int) $request->input('id_rol') !== (int) $usuario->id_rol) {
+            return back()
+                ->withInput()
+                ->with('error', 'No puedes cambiar el rol de tu propia cuenta.');
+        }
+
         // PERMISO PARA CAMBIAR ESTADO
 
         $puedeCambiarEstado =
-            $request->user()->can('usuarios.desactivar');
+            $request->user()->can('usuarios.desactivar')
+            && (int) $request->user()->id_usuario !== (int) $usuario->id_usuario;
 
         if ($puedeCambiarEstado) {
             $reglas['activo'] = [
@@ -589,16 +601,16 @@ class UsuarioController extends Controller
 
                 'id_rol.exists' =>
                     'El rol seleccionado no es válido.',
+                'activo.required' =>
+                    'No es posible modificar el estado de tu propia cuenta. Por seguridad, esta acción debe realizarla otro usuario autorizado.',
+
+                'activo.boolean' =>
+                    'El estado del usuario no es válido.',
             ]
         );
 
         try {
-            DB::transaction(function () use (
-                $id,
-                $datos,
-                $puedeCambiarEstado,
-                $request
-            ) {
+            DB::transaction(function () use ($id, $datos, $puedeCambiarEstado, $request) {
                 $rolSeleccionado = Rol::lockForUpdate()
                     ->findOrFail($datos['id_rol']);
 

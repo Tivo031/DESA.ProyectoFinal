@@ -393,10 +393,20 @@ class RolController extends Controller
         try {
 
             DB::transaction(
-                function () use ($rol, $datos, $puedeAdministrarPermisos, $puedeCambiarEstado) {
+                function () use ($rol, $datos, $puedeAdministrarPermisos, $puedeCambiarEstado, $request) {
 
                     $rolBloqueado = Rol::lockForUpdate()
                         ->findOrFail($rol->id_rol);
+
+                    // PROTEGER ROL PROPIO
+                    if (
+                        (int) $request->user()->id_rol ===
+                        (int) $rolBloqueado->id_rol
+                    ) {
+                        throw new DomainException(
+                            'No puedes modificar tu propio rol ni sus permisos.'
+                        );
+                    }
 
                     if (
                         $puedeCambiarEstado
@@ -484,14 +494,24 @@ class RolController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $rol = Rol::findOrFail($id);
 
         try {
-            $resultado = DB::transaction(function () use ($rol) {
+            $resultado = DB::transaction(function () use ($rol, $request) {
                 $rolBloqueado = Rol::lockForUpdate()
                     ->findOrFail($rol->id_rol);
+
+                // PROTEGER ROL PROPIO
+                if (
+                    (int) $request->user()->id_rol ===
+                    (int) $rolBloqueado->id_rol
+                ) {
+                    throw new DomainException(
+                        'No puedes desactivar tu propio rol.'
+                    );
+                }
 
                 if (!$rolBloqueado->activo) {
                     return 'inactivo';
