@@ -179,7 +179,7 @@
                                         </a>
                                     @endcan
                                     @can('usuarios.desactivar')
-                                        @if ($activo)
+                                        @if ($activo && (int) auth()->id() !== (int) $id)
                                             <form method="POST" action="{{ url('/usuarios/' . $id) }}" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
@@ -305,7 +305,7 @@
                             @endcan
 
                             @can('usuarios.desactivar')
-                                @if ($activo)
+                                @if ($activo && (int) auth()->id() !== (int) $id)
                                     <form method="POST" action="{{ url('/usuarios/' . $id) }}" class="flex-fill">
 
                                         @csrf

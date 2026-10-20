@@ -4,6 +4,8 @@
 
     $idUsuario = data_get($usuario, 'id_usuario');
     $activoActual = old('activo', data_get($usuario, 'activo', true));
+    $puedeCambiarEstado =
+        auth()->user()?->can('usuarios.desactivar') && (!$esEdicion || (int) $idUsuario !== (int) auth()->id());
 @endphp
 
 <form id="formUsuario" method="POST" action="{{ $esEdicion ? url('/usuarios/' . $idUsuario) : url('/usuarios') }}"
@@ -152,21 +154,35 @@
                         Usa letras, números, puntos o guiones bajos.
                     </div>
                 </div>
-
                 <div class="col-12 col-md-6">
                     <label class="form-label" for="id_rol">
                         Rol <span class="text-danger">*</span>
                     </label>
 
-                    <select class="form-select @error('id_rol') is-invalid @enderror" id="id_rol" name="id_rol">
-                        <option value="">Seleccionar rol</option>
+                    @php
+                        $esCuentaPropia = $esEdicion && (int) auth()->id() === (int) data_get($usuario, 'id_usuario');
+                    @endphp
 
-                        @foreach ($roles as $rol)
-                            <option value="{{ data_get($rol, 'id_rol') }}" @selected((string) old('id_rol', data_get($usuario, 'id_rol')) === (string) data_get($rol, 'id_rol'))>
-                                {{ data_get($rol, 'nombre') }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @if ($esCuentaPropia)
+                        {{-- ROL DE LA CUENTA PROPIA --}}
+                        <input type="text" class="form-control" id="id_rol"
+                            value="{{ $usuario->rol?->nombre ?? 'Sin rol' }}" readonly>
+
+                        <input type="hidden" name="id_rol" value="{{ $usuario->id_rol }}">
+                    @else
+                        {{-- SELECCIÓN DE ROL --}}
+                        <select class="form-select @error('id_rol') is-invalid @enderror" id="id_rol"
+                            name="id_rol">
+
+                            <option value="">Seleccionar rol</option>
+
+                            @foreach ($roles as $rol)
+                                <option value="{{ data_get($rol, 'id_rol') }}" @selected((string) old('id_rol', data_get($usuario, 'id_rol')) === (string) data_get($rol, 'id_rol'))>
+                                    {{ data_get($rol, 'nombre') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
 
                     <div class="invalid-feedback" id="error-id_rol">
                         @error('id_rol')
@@ -219,7 +235,7 @@
                     </div>
                 @endif
 
-                @can('usuarios.desactivar')
+                @if ($puedeCambiarEstado)
                     <div class="col-12">
                         <div class="status-switch-panel">
                             <div>
@@ -246,7 +262,7 @@
                             </div>
                         </div>
                     </div>
-                @endcan
+                @endif
 
             </div>
         </div>
