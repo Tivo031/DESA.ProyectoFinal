@@ -26,6 +26,12 @@ class CitaController extends Controller
                     'especialista.usuario',
                 ]);
 
+            $especialistaAutenticado = $this->especialistaAutenticado($request);
+
+            if ($especialistaAutenticado) {
+                $consulta->where('id_especialista', $especialistaAutenticado->id_especialista);
+            }
+
             $buscar = trim(
                 (string) $request->input('buscar', '')
             );
@@ -88,17 +94,30 @@ class CitaController extends Controller
                 ->orderBy('id_especialista')
                 ->get();
 
+            if ($especialistaAutenticado) {
+                $especialistas = $especialistas->where(
+                    'id_especialista',
+                    $especialistaAutenticado->id_especialista
+                )->values();
+            }
+
             $estados = EstadoCita::query()
                 ->orderBy('id_estado_cita')
                 ->get();
 
+            $consultaResumen = Cita::query();
+
+            if ($especialistaAutenticado) {
+                $consultaResumen->where('id_especialista', $especialistaAutenticado->id_especialista);
+            }
+
             $resumenCitas = [
-                'hoy' => Cita::whereDate(
+                'hoy' => (clone $consultaResumen)->whereDate(
                     'inicio',
                     now()->toDateString()
                 )->count(),
 
-                'confirmadas' => Cita::whereHas(
+                'confirmadas' => (clone $consultaResumen)->whereHas(
                     'estado',
                     function ($query) {
                         $query->where(
@@ -108,7 +127,7 @@ class CitaController extends Controller
                     }
                 )->count(),
 
-                'pendientes' => Cita::whereHas(
+                'pendientes' => (clone $consultaResumen)->whereHas(
                     'estado',
                     function ($query) {
                         $query->where(
@@ -118,7 +137,7 @@ class CitaController extends Controller
                     }
                 )->count(),
 
-                'canceladas' => Cita::whereHas(
+                'canceladas' => (clone $consultaResumen)->whereHas(
                     'estado',
                     function ($query) {
                         $query->where(
@@ -129,7 +148,9 @@ class CitaController extends Controller
                 )->count(),
             ];
 
-            $solicitudesPendientes = SolicitudCita::where('estado', 'PENDIENTE')->count();
+            $solicitudesPendientes = $especialistaAutenticado
+                ? 0
+                : SolicitudCita::where('estado', 'PENDIENTE')->count();
 
             return view(
                 'citas.index',
@@ -147,9 +168,7 @@ class CitaController extends Controller
             Log::error(
                 'Error al cargar el listado de citas.',
                 [
-                    'mensaje' => $e->getMessage(),
-                    'archivo' => $e->getFile(),
-                    'linea' => $e->getLine(),
+                    'codigo' => 'CITAS_LISTADO_ERROR',
                 ]
             );
 
@@ -201,9 +220,7 @@ class CitaController extends Controller
             Log::error(
                 'Error al cargar el formulario de citas.',
                 [
-                    'mensaje' => $e->getMessage(),
-                    'archivo' => $e->getFile(),
-                    'linea' => $e->getLine(),
+                    'codigo' => 'CITAS_FORMULARIO_ERROR',
                 ]
             );
 
@@ -438,9 +455,7 @@ class CitaController extends Controller
             Log::error(
                 'Error al registrar una cita.',
                 [
-                    'mensaje' => $e->getMessage(),
-                    'archivo' => $e->getFile(),
-                    'linea' => $e->getLine(),
+                    'codigo' => 'CITA_REGISTRO_ERROR',
                 ]
             );
 
@@ -453,16 +468,22 @@ class CitaController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         try {
-            $cita = Cita::with([
+            $consulta = Cita::with([
                 'paciente',
                 'servicio',
                 'estado',
                 'especialista.usuario',
                 'usuarioRegistro',
-            ])->find($id);
+            ]);
+
+            if ($especialista = $this->especialistaAutenticado($request)) {
+                $consulta->where('id_especialista', $especialista->id_especialista);
+            }
+
+            $cita = $consulta->find($id);
 
             if (!$cita) {
                 return redirect()
@@ -476,7 +497,7 @@ class CitaController extends Controller
 
             Log::error('Error al mostrar la cita.', [
                 'id_cita' => $id,
-                'mensaje' => $e->getMessage(),
+                'codigo' => 'CITA_DETALLE_ERROR',
             ]);
 
             return redirect()
@@ -530,7 +551,7 @@ class CitaController extends Controller
         } catch (Throwable $e) {
             Log::error('Error al cargar la edición de la cita.', [
                 'id_cita' => $id,
-                'mensaje' => $e->getMessage(),
+                'codigo' => 'CITA_EDICION_CARGA_ERROR',
             ]);
 
             return redirect()
@@ -657,7 +678,7 @@ class CitaController extends Controller
         } catch (Throwable $e) {
             Log::error('Error al actualizar la cita.', [
                 'id_cita' => $id,
-                'mensaje' => $e->getMessage(),
+                'codigo' => 'CITA_ACTUALIZACION_ERROR',
             ]);
 
             return back()
@@ -706,11 +727,28 @@ class CitaController extends Controller
         } catch (Throwable $e) {
             Log::error('Error al cancelar la cita.', [
                 'id_cita' => $id,
-                'mensaje' => $e->getMessage(),
+                'codigo' => 'CITA_CANCELACION_ERROR',
             ]);
 
             return back()
                 ->with('error', 'No fue posible cancelar la cita.');
         }
+    }
+
+    private function especialistaAutenticado(Request $request): ?Especialista
+    {
+        $usuario = $request->user();
+
+        if (!$usuario || $usuario->rol?->nombre !== 'ESPECIALISTA') {
+            return null;
+        }
+
+        $especialista = Especialista::where('id_usuario', $usuario->id_usuario)
+            ->where('activo', true)
+            ->first();
+
+        abort_unless($especialista, 403);
+
+        return $especialista;
     }
 }

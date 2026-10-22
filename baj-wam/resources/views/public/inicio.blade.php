@@ -96,12 +96,8 @@
                                         Nombre completo
                                     </label>
 
-                                    <input
-                                        class="form-control @error('nombre') is-invalid @enderror"
-                                        name="nombre"
-                                        value="{{ old('nombre') }}"
-                                        required
-                                    >
+                                    <input class="form-control @error('nombre') is-invalid @enderror" name="nombre"
+                                        value="{{ old('nombre') }}" required>
 
                                     @error('nombre')
                                         <div class="invalid-feedback">
@@ -115,19 +111,10 @@
                                         Teléfono
                                     </label>
 
-                                    <input
-                                        class="form-control @error('telefono') is-invalid @enderror"
-                                        type="text"
-                                        id="telefono"
-                                        name="telefono"
-                                        value="{{ old('telefono') }}"
-                                        inputmode="numeric"
-                                        maxlength="20"
-                                        pattern="[0-9]+"
-                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                        required
-                                        placeholder="Ej. 5555-5555"
-                                    >
+                                    <input class="form-control @error('telefono') is-invalid @enderror" type="text"
+                                        id="telefono" name="telefono" value="{{ old('telefono') }}" inputmode="numeric"
+                                        minlength="9" maxlength="9" pattern="[0-9]{4}-[0-9]{4}" data-formato-telefono
+                                        required placeholder="Ej. 5555-5555">
 
                                     @error('telefono')
                                         <div class="invalid-feedback">
@@ -137,26 +124,62 @@
                                 </div>
 
                                 <div class="col-md-6">
+                                    <label class="form-label" for="dpi">
+                                        DPI <span class="text-muted small">(opcional)</span>
+                                    </label>
+
+                                    <input class="form-control @error('dpi') is-invalid @enderror" type="text"
+                                        id="dpi" name="dpi" value="{{ old('dpi') }}" inputmode="numeric"
+                                        maxlength="13" pattern="[0-9]{13}"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="13 dígitos">
+
+                                    @error('dpi')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+
+                                    <div class="form-text">
+                                        Si no cuentas con DPI, el personal validará tu identidad al procesar la solicitud.
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="numero_expediente">
+                                        Número de expediente <span class="text-muted small">(opcional)</span>
+                                    </label>
+
+                                    <input class="form-control @error('numero_expediente') is-invalid @enderror"
+                                        type="text" id="numero_expediente" name="numero_expediente"
+                                        value="{{ old('numero_expediente') }}" maxlength="20" pattern="PAC-[0-9]{6,}"
+                                        oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, '')"
+                                        placeholder="PAC-000001">
+
+                                    @error('numero_expediente')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+
+                                    <div class="form-text">
+                                        Si ya tienes expediente, indícalo en este formato.
+                                        No se verificará públicamente.
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
                                     <label class="form-label">
                                         Servicio
                                     </label>
 
-                                    <select
-                                        class="form-select @error('id_servicio') is-invalid @enderror"
-                                        name="id_servicio"
-                                        required
-                                    >
+                                    <select class="form-select @error('id_servicio') is-invalid @enderror"
+                                        name="id_servicio" required>
                                         <option value="">
                                             Seleccionar servicio
                                         </option>
 
                                         @foreach ($servicios as $servicio)
-                                            <option
-                                                value="{{ $servicio->id_servicio }}"
-                                                @selected(
-                                                    old('id_servicio') == $servicio->id_servicio
-                                                )
-                                            >
+                                            <option value="{{ $servicio->id_servicio }}" @selected(old('id_servicio') == $servicio->id_servicio)>
                                                 {{ $servicio->nombre }}
                                                 · {{ $servicio->duracion_minutos }} min
                                             </option>
@@ -175,14 +198,9 @@
                                         Fecha preferida
                                     </label>
 
-                                    <input
-                                        class="form-control @error('fecha') is-invalid @enderror"
-                                        type="date"
-                                        name="fecha"
-                                        value="{{ old('fecha') }}"
-                                        min="{{ now()->toDateString() }}"
-                                        required
-                                    >
+                                    <input class="form-control @error('fecha') is-invalid @enderror" type="date"
+                                        name="fecha" value="{{ old('fecha') }}" min="{{ now()->toDateString() }}"
+                                        required>
 
                                     @error('fecha')
                                         <div class="invalid-feedback">
@@ -196,41 +214,14 @@
                                         Hora preferida
                                     </label>
 
-                                    <select
-                                        class="form-select @error('hora') is-invalid @enderror"
-                                        name="hora"
-                                        required
-                                    >
+                                    <select class="form-select @error('hora') is-invalid @enderror" name="hora"
+                                        required>
                                         <option value="">
                                             Seleccionar
                                         </option>
 
-                                        @foreach ([
-                                            '08:00',
-                                            '08:30',
-                                            '09:00',
-                                            '09:30',
-                                            '10:00',
-                                            '10:30',
-                                            '11:00',
-                                            '11:30',
-                                            '12:00',
-                                            '12:30',
-                                            '13:00',
-                                            '13:30',
-                                            '14:00',
-                                            '14:30',
-                                            '15:00',
-                                            '15:30',
-                                            '16:00',
-                                            '16:30',
-                                            '17:00',
-                                            '17:30'
-                                        ] as $hora)
-                                            <option
-                                                value="{{ $hora }}"
-                                                @selected(old('hora') === $hora)
-                                            >
+                                        @foreach (['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'] as $hora)
+                                            <option value="{{ $hora }}" @selected(old('hora') === $hora)>
                                                 {{ $hora }}
                                             </option>
                                         @endforeach
@@ -248,13 +239,8 @@
                                         Comentario
                                     </label>
 
-                                    <textarea
-                                        class="form-control @error('comentario') is-invalid @enderror"
-                                        rows="3"
-                                        name="comentario"
-                                        maxlength="500"
-                                        placeholder="Cuéntanos brevemente cómo podemos ayudarte"
-                                    >{{ old('comentario') }}</textarea>
+                                    <textarea class="form-control @error('comentario') is-invalid @enderror" rows="3" name="comentario"
+                                        maxlength="500" placeholder="Cuéntanos brevemente cómo podemos ayudarte">{{ old('comentario') }}</textarea>
 
                                     @error('comentario')
                                         <div class="invalid-feedback">
@@ -264,10 +250,7 @@
                                 </div>
 
                                 <div class="col-12">
-                                    <button
-                                        class="btn btn-brand w-100"
-                                        type="submit"
-                                    >
+                                    <button class="btn btn-brand w-100" type="submit">
                                         <i class="bi bi-send me-2"></i>
                                         Enviar solicitud
                                     </button>
@@ -279,4 +262,23 @@
             </div>
         </div>
     </section>
+    @if ($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const campo = document.querySelector('#cita .is-invalid');
+
+                if (campo) {
+                    campo.scrollIntoView({
+                        behavior: 'instant',
+                        block: 'center'
+                    });
+                } else {
+                    document.getElementById('cita')?.scrollIntoView({
+                        behavior: 'instant',
+                        block: 'start'
+                    });
+                }
+            });
+        </script>
+    @endif
 @endsection

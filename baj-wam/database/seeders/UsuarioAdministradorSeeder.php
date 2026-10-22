@@ -22,7 +22,7 @@ class UsuarioAdministradorSeeder extends Seeder
             [
                 'correo' => env(
                     'SEED_ADMIN_EMAIL',
-                    'admin@bajwam.test'
+                    'admin@bajwam.com'
                 ),
             ],
             [
@@ -32,7 +32,7 @@ class UsuarioAdministradorSeeder extends Seeder
                 'telefono' => '5555-0000',
                 'usuario' => env(
                     'SEED_ADMIN_USER',
-                    'admin'
+                    'admin1'
                 ),
                 'password' => Hash::make(
                     env(

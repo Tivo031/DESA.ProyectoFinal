@@ -10,6 +10,8 @@ use App\Models\Cita;
 use App\Models\EstadoCita;
 use App\Models\Producto;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\ValidationException;
 class ConsultaController extends Controller
 {
@@ -23,6 +25,14 @@ class ConsultaController extends Controller
                 'usuarioRegistro',
                 'productos',
             ]);
+
+        $especialistaAutenticado = $this->especialistaAutenticado($request);
+
+        if ($especialistaAutenticado) {
+            $query->whereHas('cita', function ($cita) use ($especialistaAutenticado) {
+                $cita->where('id_especialista', $especialistaAutenticado->id_especialista);
+            });
+        }
 
         // BÚSQUEDA
         if ($request->filled('buscar')) {
@@ -78,22 +88,37 @@ class ConsultaController extends Controller
             ->orderBy('id_especialista')
             ->get();
 
+        if ($especialistaAutenticado) {
+            $especialistas = $especialistas->where(
+                'id_especialista',
+                $especialistaAutenticado->id_especialista
+            )->values();
+        }
+
         // RESUMEN
         $inicioMes = Carbon::now()->startOfMonth();
         $finMes = Carbon::now()->endOfMonth();
 
+        $consultaResumen = Consulta::query();
+
+        if ($especialistaAutenticado) {
+            $consultaResumen->whereHas('cita', function ($cita) use ($especialistaAutenticado) {
+                $cita->where('id_especialista', $especialistaAutenticado->id_especialista);
+            });
+        }
+
         $resumenConsultas = [
-            'mes' => Consulta::whereBetween(
+            'mes' => (clone $consultaResumen)->whereBetween(
                 'fecha_consulta',
                 [$inicioMes, $finMes]
             )->count(),
 
-            'hoy' => Consulta::whereDate(
+            'hoy' => (clone $consultaResumen)->whereDate(
                 'fecha_consulta',
                 Carbon::today()
             )->count(),
 
-            'pacientes' => Consulta::whereBetween(
+            'pacientes' => (clone $consultaResumen)->whereBetween(
                 'fecha_consulta',
                 [$inicioMes, $finMes]
             )
@@ -106,7 +131,7 @@ class ConsultaController extends Controller
                 ->distinct()
                 ->count('citas.id_paciente'),
 
-            'con_productos' => Consulta::whereBetween(
+            'con_productos' => (clone $consultaResumen)->whereBetween(
                 'fecha_consulta',
                 [$inicioMes, $finMes]
             )
@@ -121,7 +146,7 @@ class ConsultaController extends Controller
         ));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $estadoConfirmada = EstadoCita::where(
             'codigo',
@@ -140,6 +165,9 @@ class ConsultaController extends Controller
             )
             ->whereDoesntHave('consulta')
             ->orderBy('inicio')
+            ->when($this->especialistaAutenticado($request), function ($query, $especialista) {
+                $query->where('id_especialista', $especialista->id_especialista);
+            })
             ->get();
 
         $productos = Producto::query()
@@ -221,6 +249,8 @@ class ConsultaController extends Controller
 
             DB::transaction(function () use ($request) {
 
+                $especialistaAutenticado = $this->especialistaAutenticado($request);
+
                 $estadoConfirmada = EstadoCita::where(
                     'codigo',
                     'CONFIRMADA'
@@ -241,6 +271,11 @@ class ConsultaController extends Controller
                     )
                     ->lockForUpdate()
                     ->firstOrFail();
+
+                if ($especialistaAutenticado
+                    && $cita->id_especialista !== $especialistaAutenticado->id_especialista) {
+                    throw new AuthorizationException();
+                }
 
                 if (
                     $cita->id_estado_cita !==
@@ -364,13 +399,15 @@ class ConsultaController extends Controller
                     'Consulta registrada correctamente.'
                 );
 
-        } catch (ValidationException $e) {
+        } catch (ValidationException|AuthorizationException $e) {
 
             throw $e;
 
         } catch (\Throwable $e) {
 
-            report($e);
+            Log::error('No fue posible registrar una consulta.', [
+                'codigo' => 'CONSULTA_REGISTRO_ERROR',
+            ]);
 
             return back()
                 ->withInput()
@@ -381,19 +418,26 @@ class ConsultaController extends Controller
         }
     }
 
-    public function show(int $id)
+    public function show(Request $request, int $id)
     {
         try {
 
-            $consulta = Consulta::query()
+            $consultaQuery = Consulta::query()
                 ->with([
                     'cita.paciente',
                     'cita.especialista.usuario',
                     'cita.servicio',
                     'usuarioRegistro',
                     'productos',
-                ])
-                ->findOrFail($id);
+                ]);
+
+            if ($especialista = $this->especialistaAutenticado($request)) {
+                $consultaQuery->whereHas('cita', function ($cita) use ($especialista) {
+                    $cita->where('id_especialista', $especialista->id_especialista);
+                });
+            }
+
+            $consulta = $consultaQuery->findOrFail($id);
 
             return view(
                 'consultas.show',
@@ -411,7 +455,10 @@ class ConsultaController extends Controller
 
         } catch (\Throwable $e) {
 
-            report($e);
+            Log::error('No fue posible cargar una consulta.', [
+                'codigo' => 'CONSULTA_DETALLE_ERROR',
+                'id_consulta' => $id,
+            ]);
 
             return redirect()
                 ->route('consultas.index')
@@ -420,5 +467,22 @@ class ConsultaController extends Controller
                     'No fue posible cargar la consulta.'
                 );
         }
+    }
+
+    private function especialistaAutenticado(Request $request): ?Especialista
+    {
+        $usuario = $request->user();
+
+        if (!$usuario || $usuario->rol?->nombre !== 'ESPECIALISTA') {
+            return null;
+        }
+
+        $especialista = Especialista::where('id_usuario', $usuario->id_usuario)
+            ->where('activo', true)
+            ->first();
+
+        abort_unless($especialista, 403);
+
+        return $especialista;
     }
 }

@@ -206,6 +206,10 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->whereNumber('id')
             ->name('pacientes.destroy');
 
+        Route::get('/pacientes/buscar', [PacienteController::class, 'buscar'])
+            ->middleware('can:pacientes.ver')
+            ->name('pacientes.buscar');
+
 
         // CITAS
 

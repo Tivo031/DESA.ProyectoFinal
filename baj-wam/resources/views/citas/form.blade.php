@@ -12,38 +12,29 @@
 
     if (!$fechaCita && $inicio) {
         try {
-            $fechaCita = \Illuminate\Support\Carbon::parse($inicio)
-                ->format('Y-m-d');
+            $fechaCita = \Illuminate\Support\Carbon::parse($inicio)->format('Y-m-d');
         } catch (\Throwable $e) {
         }
     }
 
     if (!$horaInicio && $inicio) {
         try {
-            $horaInicio = \Illuminate\Support\Carbon::parse($inicio)
-                ->format('H:i');
+            $horaInicio = \Illuminate\Support\Carbon::parse($inicio)->format('H:i');
         } catch (\Throwable $e) {
         }
     }
 
     if (!$horaFin && $fin) {
         try {
-            $horaFin = \Illuminate\Support\Carbon::parse($fin)
-                ->format('H:i');
+            $horaFin = \Illuminate\Support\Carbon::parse($fin)->format('H:i');
         } catch (\Throwable $e) {
         }
     }
 
-    $idEstadoActual = old(
-        'id_estado_cita',
-        data_get($cita, 'id_estado_cita', 1)
-    );
+    $idEstadoActual = old('id_estado_cita', data_get($cita, 'id_estado_cita', 1));
 @endphp
 
-<<form
-    method="POST"
-    action="{{ $esEdicion ? route('citas.update', $idCita) : route('citas.store') }}"
->
+<<form method="POST" action="{{ $esEdicion ? route('citas.update', $idCita) : route('citas.store') }}">
     @csrf
     @if ($esEdicion)
         @method('PUT')
@@ -53,7 +44,8 @@
         <div class="col-12 col-xl-8">
             <div class="card bw-card mb-4">
                 <div class="card-header form-section-header">
-                    <span class="form-section-icon bg-soft-purple text-brand"><i class="bi bi-person-check-fill"></i></span>
+                    <span class="form-section-icon bg-soft-purple text-brand"><i
+                            class="bi bi-person-check-fill"></i></span>
                     <div>
                         <h2 class="form-section-title">Paciente y servicio</h2>
                         <p class="form-section-copy">Selecciona quién será atendido y el tipo de servicio solicitado.</p>
@@ -62,60 +54,54 @@
                 <div class="card-body p-4">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label" for="id_paciente">Paciente <span class="text-danger">*</span></label>
-                            <select class="form-select @error('id_paciente') is-invalid @enderror" id="id_paciente" name="id_paciente" required>
-                                <option value="">Buscar o seleccionar paciente</option>
+                            <label class="form-label" for="id_paciente">Paciente <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-select @error('id_paciente') is-invalid @enderror" id="id_paciente"
+                                name="id_paciente" data-buscador placeholder="Selecciona un paciente" required>
+                                <option value="" disabled>Buscar o seleccionar paciente</option>
                                 @foreach ($pacientes as $paciente)
-                                    <option value="{{ data_get($paciente, 'id_paciente') }}" @selected((string) old('id_paciente', data_get($cita, 'id_paciente')) === (string) data_get($paciente, 'id_paciente'))>
-                                        {{ trim(data_get($paciente, 'nombres').' '.data_get($paciente, 'apellidos')) }} · {{ data_get($paciente, 'telefono') }}
+                                    <option value="{{ data_get($paciente, 'id_paciente') }}"
+                                        @selected((string) old('id_paciente', data_get($cita, 'id_paciente')) === (string) data_get($paciente, 'id_paciente'))>
+                                        {{ trim(data_get($paciente, 'nombres') . ' ' . data_get($paciente, 'apellidos')) }}
+                                        · {{ data_get($paciente, 'telefono') }}
                                     </option>
                                 @endforeach
                             </select>
-                            @error('id_paciente')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            <div class="form-text">Si el paciente aún no existe, regístralo primero desde el módulo Pacientes.</div>
+                            @error('id_paciente')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">Si el paciente aún no existe, regístralo primero desde el módulo
+                                Pacientes.</div>
                         </div>
 
                         <div class="col-12 col-md-6">
-                            <label class="form-label" for="id_servicio">Servicio <span class="text-danger">*</span></label>
-                            <select class="form-select @error('id_servicio') is-invalid @enderror" id="id_servicio" name="id_servicio" required>
-                                <option value="">Seleccionar servicio</option>
+                            <label class="form-label" for="id_servicio">Servicio <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-select @error('id_servicio') is-invalid @enderror" id="id_servicio"
+                                name="id_servicio" data-buscador placeholder="Selecciona un servicio" required>
+                                <option value="" disabled>Seleccionar servicio</option>
                                 @foreach ($servicios as $servicio)
-                                    <option
-                                        value="{{ $servicio->id_servicio }}"
-                                        data-duracion="{{ $servicio->duracion_minutos }}"
-                                        @selected(
-                                            (string) old(
-                                                'id_servicio',
-                                                data_get($cita, 'id_servicio')
-                                            )
-                                            ===
-                                            (string) $servicio->id_servicio
-                                        )
-                                    >
+                                    <option value="{{ $servicio->id_servicio }}"
+                                        data-duracion="{{ $servicio->duracion_minutos }}" @selected((string) old('id_servicio', data_get($cita, 'id_servicio')) === (string) $servicio->id_servicio)>
                                         {{ $servicio->nombre }}
                                         · {{ $servicio->duracion_minutos }} min
                                     </option>
                                 @endforeach
                             </select>
-                            @error('id_servicio')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            @error('id_servicio')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="col-12 col-md-6">
-                            <label class="form-label" for="id_especialista">Especialista <span class="text-danger">*</span></label>
-                            <select class="form-select @error('id_especialista') is-invalid @enderror" id="id_especialista" name="id_especialista" required>
-                                <option value="">Seleccionar especialista</option>
+                            <label class="form-label" for="id_especialista">Especialista <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-select @error('id_especialista') is-invalid @enderror"
+                                id="id_especialista" name="id_especialista" data-buscador
+                                placeholder="Selecciona un especialista" required>
+                                <option value="" disabled>Seleccionar especialista</option>
                                 @foreach ($especialistas as $especialista)
-                                    <option
-                                        value="{{ $especialista->id_especialista }}"
-                                        @selected(
-                                            (string) old(
-                                                'id_especialista',
-                                                data_get($cita, 'id_especialista')
-                                            )
-                                            ===
-                                            (string) $especialista->id_especialista
-                                        )
-                                    >
+                                    <option value="{{ $especialista->id_especialista }}" @selected((string) old('id_especialista', data_get($cita, 'id_especialista')) === (string) $especialista->id_especialista)>
                                         {{ $especialista->usuario?->nombres }}
                                         {{ $especialista->usuario?->apellidos }}
                                         ·
@@ -123,7 +109,9 @@
                                     </option>
                                 @endforeach
                             </select>
-                            @error('id_especialista')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            @error('id_especialista')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -134,7 +122,8 @@
                     <span class="form-section-icon bg-soft-green text-green-bw"><i class="bi bi-clock-fill"></i></span>
                     <div>
                         <h2 class="form-section-title">Fecha y horario</h2>
-                        <p class="form-section-copy">El sistema validará que el especialista no tenga otra cita durante este intervalo.</p>
+                        <p class="form-section-copy">El sistema validará que el especialista no tenga otra cita durante
+                            este intervalo.</p>
                     </div>
                 </div>
                 <div class="card-body p-4">
@@ -144,14 +133,8 @@
                                 Fecha de la cita
                             </label>
 
-                            <input
-                                type="date"
-                                class="form-control @error('fecha_cita') is-invalid @enderror"
-                                id="fecha_cita"
-                                name="fecha_cita"
-                                value="{{ $fechaCita }}"
-                                required
-                            >
+                            <input type="date" class="form-control @error('fecha_cita') is-invalid @enderror"
+                                id="fecha_cita" name="fecha_cita" value="{{ $fechaCita }}" required>
 
                             @error('fecha_cita')
                                 <div class="invalid-feedback">
@@ -165,12 +148,8 @@
                                 Hora de inicio
                             </label>
 
-                            <select
-                                class="form-select @error('hora_inicio') is-invalid @enderror"
-                                id="hora_inicio"
-                                name="hora_inicio"
-                                required
-                            >
+                            <select class="form-select @error('hora_inicio') is-invalid @enderror" id="hora_inicio"
+                                name="hora_inicio" required>
                                 <option value="">
                                     Selecciona un horario
                                 </option>
@@ -201,10 +180,7 @@
                                 @endphp
 
                                 @foreach ($horarios as $horario)
-                                    <option
-                                        value="{{ $horario }}"
-                                        @selected($horaInicio === $horario)
-                                    >
+                                    <option value="{{ $horario }}" @selected($horaInicio === $horario)>
                                         {{ $horario }}
                                     </option>
                                 @endforeach
@@ -219,12 +195,7 @@
 
                     </div>
 
-                    <input
-                        type="hidden"
-                        id="hora_fin"
-                        name="hora_fin"
-                        value="{{ $horaFin }}"
-                    >
+                    <input type="hidden" id="hora_fin" name="hora_fin" value="{{ $horaFin }}">
 
                     <div class="mt-3">
                         <div class="alert alert-light border mb-0">
@@ -241,10 +212,7 @@
                                         Selecciona un servicio y una hora
                                     </strong>
 
-                                    <span
-                                        class="text-muted ms-2"
-                                        id="duracionServicio"
-                                    ></span>
+                                    <span class="text-muted ms-2" id="duracionServicio"></span>
                                 </div>
 
                             </div>
@@ -255,7 +223,8 @@
                         <span class="availability-icon"><i class="bi bi-calendar2-check-fill"></i></span>
                         <div>
                             <strong>Validación de disponibilidad</strong>
-                            <p class="mb-0">Al guardar, el backend debe comprobar que no exista otra cita activa del mismo especialista que se cruce con este horario.</p>
+                            <p class="mb-0">Al guardar, el backend debe comprobar que no exista otra cita activa del
+                                mismo especialista que se cruce con este horario.</p>
                         </div>
                     </div>
                 </div>
@@ -263,7 +232,8 @@
 
             <div class="card bw-card mb-4">
                 <div class="card-header form-section-header">
-                    <span class="form-section-icon bg-soft-plum text-plum-bw"><i class="bi bi-chat-left-text-fill"></i></span>
+                    <span class="form-section-icon bg-soft-plum text-plum-bw"><i
+                            class="bi bi-chat-left-text-fill"></i></span>
                     <div>
                         <h2 class="form-section-title">Observaciones</h2>
                         <p class="form-section-copy">Información administrativa necesaria antes de la atención.</p>
@@ -271,8 +241,11 @@
                 </div>
                 <div class="card-body p-4">
                     <label class="form-label" for="observaciones">Observaciones de la cita</label>
-                    <textarea class="form-control @error('observaciones') is-invalid @enderror" id="observaciones" name="observaciones" rows="4" maxlength="500" placeholder="Indicaciones, motivo general o información relevante">{{ old('observaciones', data_get($cita, 'observaciones')) }}</textarea>
-                    @error('observaciones')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <textarea class="form-control @error('observaciones') is-invalid @enderror" id="observaciones" name="observaciones"
+                        rows="4" maxlength="500" placeholder="Indicaciones, motivo general o información relevante">{{ old('observaciones', data_get($cita, 'observaciones')) }}</textarea>
+                    @error('observaciones')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
         </div>
@@ -288,19 +261,27 @@
                 </div>
                 <div class="card-body p-4">
                     <label class="form-label" for="id_estado_cita">Estado <span class="text-danger">*</span></label>
-                    <select class="form-select @error('id_estado_cita') is-invalid @enderror" id="id_estado_cita" name="id_estado_cita" required>
+                    <select class="form-select @error('id_estado_cita') is-invalid @enderror" id="id_estado_cita"
+                        name="id_estado_cita" required>
                         @foreach ($estados as $estado)
-                            <option value="{{ data_get($estado, 'id_estado_cita') }}" data-code="{{ data_get($estado, 'codigo') }}" @selected((string) $idEstadoActual === (string) data_get($estado, 'id_estado_cita'))>
+                            <option value="{{ data_get($estado, 'id_estado_cita') }}"
+                                data-code="{{ data_get($estado, 'codigo') }}" @selected((string) $idEstadoActual === (string) data_get($estado, 'id_estado_cita'))>
                                 {{ data_get($estado, 'nombre') }}
                             </option>
                         @endforeach
                     </select>
-                    @error('id_estado_cita')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    @error('id_estado_cita')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
 
-                    <div class="mt-3 {{ old('id_estado_cita', data_get($cita, 'id_estado_cita')) == 4 ? '' : 'd-none' }}" id="cancel-reason-wrapper">
+                    <div class="mt-3 {{ old('id_estado_cita', data_get($cita, 'id_estado_cita')) == 4 ? '' : 'd-none' }}"
+                        id="cancel-reason-wrapper">
                         <label class="form-label" for="motivo_cancelacion">Motivo de cancelación</label>
-                        <textarea class="form-control @error('motivo_cancelacion') is-invalid @enderror" id="motivo_cancelacion" name="motivo_cancelacion" rows="3" maxlength="250" placeholder="Explica brevemente el motivo">{{ old('motivo_cancelacion', data_get($cita, 'motivo_cancelacion')) }}</textarea>
-                        @error('motivo_cancelacion')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        <textarea class="form-control @error('motivo_cancelacion') is-invalid @enderror" id="motivo_cancelacion"
+                            name="motivo_cancelacion" rows="3" maxlength="250" placeholder="Explica brevemente el motivo">{{ old('motivo_cancelacion', data_get($cita, 'motivo_cancelacion')) }}</textarea>
+                        @error('motivo_cancelacion')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -327,36 +308,40 @@
                 <span class="info-callout-icon"><i class="bi bi-person-lock"></i></span>
                 <div class="small">
                     <strong class="d-block mb-1">Registro automático</strong>
-                    El usuario responsable se tomará de la sesión iniciada, por lo que no debe seleccionarse manualmente.
+                    El usuario responsable se tomará de la sesión iniciada, por lo que no debe seleccionarse
+                    manualmente.
                 </div>
             </div>
         </div>
     </div>
 
     <div class="form-action-bar mt-4">
-        <div class="text-secondary small"><i class="bi bi-shield-check me-1"></i>Los campos con asterisco son obligatorios.</div>
+        <div class="text-secondary small"><i class="bi bi-shield-check me-1"></i>Los campos con asterisco son
+            obligatorios.</div>
         <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-light border" href="{{ $esEdicion ? url('/citas/'.$idCita) : url('/citas') }}">Cancelar</a>
-            <button class="btn btn-brand" type="submit"><i class="bi bi-floppy-fill me-2"></i>{{ $esEdicion ? 'Guardar cambios' : 'Registrar cita' }}</button>
+            <a class="btn btn-light border"
+                href="{{ $esEdicion ? url('/citas/' . $idCita) : url('/citas') }}">Cancelar</a>
+            <button class="btn btn-brand" type="submit"><i
+                    class="bi bi-floppy-fill me-2"></i>{{ $esEdicion ? 'Guardar cambios' : 'Registrar cita' }}</button>
         </div>
     </div>
-</form>
+    </form>
 
-@push('scripts')
-<script src="{{ asset('assets/js/citas/cita-form.js') }}"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const estado = document.getElementById('id_estado_cita');
-    const cancelacion = document.getElementById('cancel-reason-wrapper');
-    if (!estado || !cancelacion) return;
+    @push('scripts')
+        <script src="{{ asset('assets/js/citas/cita-form.js') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const estado = document.getElementById('id_estado_cita');
+                const cancelacion = document.getElementById('cancel-reason-wrapper');
+                if (!estado || !cancelacion) return;
 
-    const actualizarCancelacion = function () {
-        const opcion = estado.options[estado.selectedIndex];
-        cancelacion.classList.toggle('d-none', opcion?.dataset.code !== 'CANCELADA');
-    };
+                const actualizarCancelacion = function() {
+                    const opcion = estado.options[estado.selectedIndex];
+                    cancelacion.classList.toggle('d-none', opcion?.dataset.code !== 'CANCELADA');
+                };
 
-    estado.addEventListener('change', actualizarCancelacion);
-    actualizarCancelacion();
-});
-</script>
-@endpush
+                estado.addEventListener('change', actualizarCancelacion);
+                actualizarCancelacion();
+            });
+        </script>
+    @endpush

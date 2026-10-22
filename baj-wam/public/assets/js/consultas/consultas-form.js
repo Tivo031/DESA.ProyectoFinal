@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "add-product-row"
     );
 
-
     // ERRORES
 
     const mostrarError = (campo, mensaje) => {
@@ -41,6 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         campo.classList.add("is-invalid");
 
+        if (campo.tomselect) {
+            campo.tomselect.wrapper.classList.add("is-invalid");
+        }
+
         const error = document.getElementById(
             `error-${campo.id}`
         );
@@ -50,7 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-
     const limpiarError = (campo) => {
 
         if (!campo) {
@@ -58,6 +60,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         campo.classList.remove("is-invalid");
+
+        if (campo.tomselect) {
+            campo.tomselect.wrapper.classList.remove("is-invalid");
+        }
 
         const error = document.getElementById(
             `error-${campo.id}`
@@ -67,7 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
             error.textContent = "";
         }
     };
-
 
     // VALIDACIÓN DEL FORMULARIO
 
@@ -239,9 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
-
     // QUITAR PRODUCTO
-
     const asignarBotonesEliminar = () => {
 
         if (!listaProductos) {
@@ -254,71 +257,89 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 boton.onclick = () => {
 
-                    const filas =
-                        listaProductos.querySelectorAll(
-                            "[data-product-row]"
-                        );
+                    const fila = boton.closest("[data-product-row]");
+
+                    const filas = listaProductos.querySelectorAll(
+                        "[data-product-row]"
+                    );
 
                     if (filas.length === 1) {
 
-                        filas[0]
-                            .querySelectorAll(
-                                "input, select"
-                            )
-                            .forEach((campo) => {
+                        fila.querySelectorAll("input, select").forEach((campo) => {
+
+                            if (campo.tomselect) {
+                                campo.tomselect.clear();
+                            } else {
                                 campo.value = "";
-                                limpiarError(campo);
-                            });
+                            }
+
+                            limpiarError(campo);
+                        });
 
                         return;
                     }
 
-                    boton
-                        .closest("[data-product-row]")
-                        .remove();
+                    // DESTRUIR BUSCADORES
+                    fila.querySelectorAll("select[data-buscador]").forEach((select) => {
+
+                        if (select.tomselect) {
+                            select.tomselect.destroy();
+                        }
+                    });
+
+                    fila.remove();
                 };
             });
     };
 
-
     // AGREGAR PRODUCTO
 
-    if (
-        listaProductos &&
-        plantillaProducto &&
-        botonAgregarProducto
-    ) {
+    if (listaProductos && plantillaProducto && botonAgregarProducto) {
 
-        botonAgregarProducto.addEventListener(
-            "click",
-            () => {
+        // ÍNDICE PARA NUEVOS PRODUCTOS
+        let siguienteIndice = Math.max(
+            -1,
+            ...Array.from(
+                listaProductos.querySelectorAll(
+                    'select[name^="productos["][name$="[id_producto]"]'
+                )
+            ).map((select) => {
+                const coincidencia = select.name.match(/^productos\[(\d+)\]/);
+                return coincidencia ? Number(coincidencia[1]) : -1;
+            })
+        ) + 1;
 
-                const indice =
-                    listaProductos.querySelectorAll(
-                        "[data-product-row]"
-                    ).length;
+        botonAgregarProducto.addEventListener("click", () => {
 
-                const html =
-                    plantillaProducto.innerHTML.replaceAll(
-                        "__INDEX__",
-                        indice
-                    );
+            const html = plantillaProducto.innerHTML.replaceAll(
+                "__INDEX__",
+                siguienteIndice++
+            );
 
-                listaProductos.insertAdjacentHTML(
-                    "beforeend",
-                    html
-                );
+            // AGREGAR FILA
+            listaProductos.insertAdjacentHTML("beforeend", html);
 
-                asignarBotonesEliminar();
+            const nuevaFila = listaProductos.lastElementChild;
+
+            // INICIALIZAR BUSCADOR
+            if (nuevaFila && typeof inicializarBuscadores === "function") {
+                inicializarBuscadores(nuevaFila);
             }
-        );
+
+            // VERIFICAR INICIALIZACIÓN
+            const selectProducto = nuevaFila?.querySelector(
+                'select[name$="[id_producto]"]'
+            );
+
+            console.log(
+                "Buscador inicializado:",
+                Boolean(selectProducto?.tomselect)
+            );
+
+            // ASIGNAR BOTONES
+            asignarBotonesEliminar();
+        });
     }
-
-
-    // PRODUCTOS EXISTENTES
-
-    asignarBotonesEliminar();
-
 
     // ENVÍO DEL FORMULARIO
 

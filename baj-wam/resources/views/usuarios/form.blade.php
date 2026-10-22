@@ -100,7 +100,7 @@
                         <input class="form-control @error('telefono') is-invalid @enderror" id="telefono"
                             name="telefono" type="tel" maxlength="9"
                             value="{{ old('telefono', data_get($usuario, 'telefono')) }}" autocomplete="tel"
-                            placeholder="Ej. 5555-5555">
+                            data-formato-telefono placeholder="Ej. 5555-5555">
 
                         <div class="invalid-feedback" id="error-telefono">
                             @error('telefono')

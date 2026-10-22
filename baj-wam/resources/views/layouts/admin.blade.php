@@ -9,6 +9,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <link href="{{ asset('assets/css/baj-wam.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
@@ -55,9 +56,12 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('assets/js/baj-wam.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/alertas.js') }}"></script>
+    <script src="{{ asset('assets/js/baj-wam.js') }}"></script>
+    <script src="{{ asset('assets/js/telefono-formato.js') }}?v=2"></script>
+    <script src="{{ asset('assets/js/select-buscador.js') }}"></script>
     @stack('scripts')
 
 </body>
