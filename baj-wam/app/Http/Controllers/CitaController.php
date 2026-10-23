@@ -89,7 +89,8 @@ class CitaController extends Controller
                 ->with('usuario')
                 ->where('activo', true)
                 ->whereHas('usuario', function ($query) {
-                    $query->where('activo', true);
+                    $query->where('activo', true)
+                        ->whereHas('rol', fn ($rol) => $rol->where('nombre', 'ESPECIALISTA')->where('activo', true));
                 })
                 ->orderBy('id_especialista')
                 ->get();
@@ -194,7 +195,8 @@ class CitaController extends Controller
             $especialistas = Especialista::with('usuario')
                 ->where('activo', true)
                 ->whereHas('usuario', function ($query) {
-                    $query->where('activo', true);
+                    $query->where('activo', true)
+                        ->whereHas('rol', fn ($rol) => $rol->where('nombre', 'ESPECIALISTA')->where('activo', true));
                 })
                 ->get();
 
@@ -362,7 +364,8 @@ class CitaController extends Controller
             )
                 ->where('activo', true)
                 ->whereHas('usuario', function ($query) {
-                    $query->where('activo', true);
+                    $query->where('activo', true)
+                        ->whereHas('rol', fn ($rol) => $rol->where('nombre', 'ESPECIALISTA')->where('activo', true));
                 })
                 ->exists();
 
@@ -529,7 +532,8 @@ class CitaController extends Controller
             $especialistas = Especialista::with('usuario')
                 ->where('activo', true)
                 ->whereHas('usuario', function ($query) {
-                    $query->where('activo', true);
+                    $query->where('activo', true)
+                        ->whereHas('rol', fn ($rol) => $rol->where('nombre', 'ESPECIALISTA')->where('activo', true));
                 })
                 ->get();
 

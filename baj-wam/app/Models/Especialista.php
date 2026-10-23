@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Especialista extends Model
 {
@@ -22,7 +24,7 @@ class Especialista extends Model
         'activo' => 'boolean',
     ];
 
-    public function usuario()
+    public function usuario(): BelongsTo
     {
         return $this->belongsTo(
             Usuario::class,
@@ -31,7 +33,7 @@ class Especialista extends Model
         );
     }
 
-    public function citas()
+    public function citas(): HasMany
     {
         return $this->hasMany(
             Cita::class,

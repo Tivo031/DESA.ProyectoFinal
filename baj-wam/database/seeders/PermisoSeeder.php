@@ -148,6 +148,36 @@ class PermisoSeeder extends Seeder
                     'activo' => true,
                 ],
 
+                // ESPECIALISTAS
+                [
+                    'codigo' => 'especialistas.ver',
+                    'nombre' => 'Ver especialistas',
+                    'modulo' => 'ESPECIALISTAS',
+                    'descripcion' => 'Permite consultar profesionales registrados',
+                    'activo' => true,
+                ],
+                [
+                    'codigo' => 'especialistas.crear',
+                    'nombre' => 'Crear especialistas',
+                    'modulo' => 'ESPECIALISTAS',
+                    'descripcion' => 'Permite registrar usuarios con rol especialista',
+                    'activo' => true,
+                ],
+                [
+                    'codigo' => 'especialistas.editar',
+                    'nombre' => 'Editar especialistas',
+                    'modulo' => 'ESPECIALISTAS',
+                    'descripcion' => 'Permite actualizar datos administrativos de especialistas',
+                    'activo' => true,
+                ],
+                [
+                    'codigo' => 'especialistas.desactivar',
+                    'nombre' => 'Cambiar estado de especialistas',
+                    'modulo' => 'ESPECIALISTAS',
+                    'descripcion' => 'Permite activar o desactivar especialistas sin eliminar su historial',
+                    'activo' => true,
+                ],
+
                 // CITAS
                 [
                     'codigo' => 'citas.ver',

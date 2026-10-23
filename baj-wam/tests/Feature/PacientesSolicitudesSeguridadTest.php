@@ -287,7 +287,20 @@ class PacientesSolicitudesSeguridadTest extends TestCase
     }
 
     private function servicio(): Servicio { return Servicio::create(['nombre' => 'Consulta', 'duracion_minutos' => 30, 'activo' => true]); }
-    private function especialista(Usuario $usuario): Especialista { return Especialista::create(['id_usuario' => $usuario->id_usuario, 'profesion' => 'Especialista', 'activo' => true]); }
+    private function especialista(Usuario $usuario): Especialista
+    {
+        if ($usuario->rol?->nombre !== 'ESPECIALISTA') {
+            $rol = Rol::firstOrCreate(['nombre' => 'ESPECIALISTA'], ['activo' => true]);
+            $usuario = Usuario::create([
+                'id_rol' => $rol->id_rol,
+                'nombres' => 'Profesional', 'apellidos' => 'Prueba',
+                'correo' => uniqid().'@test.local', 'telefono' => '55555555',
+                'usuario' => uniqid('especialista'), 'password' => 'secreto', 'activo' => true,
+            ]);
+        }
+
+        return Especialista::create(['id_usuario' => $usuario->id_usuario, 'profesion' => 'Especialista', 'activo' => true]);
+    }
     private function estadoConfirmada(): EstadoCita { return EstadoCita::firstOrCreate(['codigo' => 'CONFIRMADA']); }
     private function cita(Paciente $paciente, Especialista $especialista, Servicio $servicio, EstadoCita $estado, Usuario $usuario, string $hora = '10:00'): Cita { $inicio = now()->addDay()->setTimeFromTimeString($hora); return Cita::create(['id_paciente' => $paciente->id_paciente, 'id_especialista' => $especialista->id_especialista, 'id_servicio' => $servicio->id_servicio, 'id_estado_cita' => $estado->id_estado_cita, 'id_usuario_registro' => $usuario->id_usuario, 'inicio' => $inicio, 'fin' => $inicio->copy()->addMinutes(30)]); }
     private function paciente(Usuario $usuario, array $atributos = []): Paciente { return Paciente::create(array_merge(['id_usuario_registro' => $usuario->id_usuario, 'nombres' => 'Paciente', 'apellidos' => 'Prueba', 'telefono' => '55555555', 'activo' => true], $atributos)); }
