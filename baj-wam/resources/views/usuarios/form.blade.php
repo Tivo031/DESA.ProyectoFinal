@@ -6,9 +6,13 @@
     $activoActual = old('activo', data_get($usuario, 'activo', true));
     $puedeCambiarEstado =
         auth()->user()?->can('usuarios.desactivar') && (!$esEdicion || (int) $idUsuario !== (int) auth()->id());
+    $modoEspecialista = $modoEspecialista ?? false;
+    $esEspecialistaInicial = old('id_rol')
+        ? collect($roles)->firstWhere('id_rol', old('id_rol'))?->nombre === 'ESPECIALISTA'
+        : data_get($usuario, 'rol.nombre') === 'ESPECIALISTA';
 @endphp
 
-<form id="formUsuario" method="POST" action="{{ $esEdicion ? url('/usuarios/' . $idUsuario) : url('/usuarios') }}"
+<form id="formUsuario" method="POST" action="{{ $modoEspecialista ? ($esEdicion ? route('especialistas.update', $idUsuario) : route('especialistas.store')) : ($esEdicion ? url('/usuarios/' . $idUsuario) : url('/usuarios')) }}"
     data-modo="{{ $esEdicion ? 'editar' : 'crear' }}" novalidate>
     @csrf
 
@@ -100,7 +104,7 @@
                         <input class="form-control @error('telefono') is-invalid @enderror" id="telefono"
                             name="telefono" type="tel" maxlength="9"
                             value="{{ old('telefono', data_get($usuario, 'telefono')) }}" autocomplete="tel"
-                            placeholder="Ej. 5555-5555">
+                            data-formato-telefono placeholder="Ej. 5555-5555">
 
                         <div class="invalid-feedback" id="error-telefono">
                             @error('telefono')
@@ -163,12 +167,12 @@
                         $esCuentaPropia = $esEdicion && (int) auth()->id() === (int) data_get($usuario, 'id_usuario');
                     @endphp
 
-                    @if ($esCuentaPropia)
+                    @if ($esCuentaPropia || $modoEspecialista)
                         {{-- ROL DE LA CUENTA PROPIA --}}
                         <input type="text" class="form-control" id="id_rol"
-                            value="{{ $usuario->rol?->nombre ?? 'Sin rol' }}" readonly>
+                            value="{{ $modoEspecialista ? 'ESPECIALISTA' : ($usuario->rol?->nombre ?? 'Sin rol') }}" readonly>
 
-                        <input type="hidden" name="id_rol" value="{{ $usuario->id_rol }}">
+                        <input type="hidden" name="id_rol" value="{{ $modoEspecialista ? data_get($roles->first(), 'id_rol') : $usuario->id_rol }}">
                     @else
                         {{-- SELECCIÓN DE ROL --}}
                         <select class="form-select @error('id_rol') is-invalid @enderror" id="id_rol"
@@ -177,7 +181,7 @@
                             <option value="">Seleccionar rol</option>
 
                             @foreach ($roles as $rol)
-                                <option value="{{ data_get($rol, 'id_rol') }}" @selected((string) old('id_rol', data_get($usuario, 'id_rol')) === (string) data_get($rol, 'id_rol'))>
+                                <option value="{{ data_get($rol, 'id_rol') }}" data-especialista="{{ data_get($rol, 'nombre') === 'ESPECIALISTA' ? '1' : '0' }}" @selected((string) old('id_rol', data_get($usuario, 'id_rol')) === (string) data_get($rol, 'id_rol'))>
                                     {{ data_get($rol, 'nombre') }}
                                 </option>
                             @endforeach
@@ -268,6 +272,22 @@
         </div>
     </div>
 
+    <div id="seccionEspecialista" data-forzado="{{ $modoEspecialista ? '1' : '0' }}" class="card bw-card mb-4 {{ $esEspecialistaInicial ? '' : 'd-none' }}">
+        <div class="card-header form-section-header">
+            <span class="form-section-icon bg-soft-green text-green-bw"><i class="bi bi-person-badge"></i></span>
+            <div>
+                <h2 class="form-section-title">Información del especialista</h2>
+                <p class="form-section-copy">Datos profesionales asociados a la cuenta con rol ESPECIALISTA.</p>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <label class="form-label" for="profesion">Profesión <span class="text-danger">*</span></label>
+            <input class="form-control @error('profesion') is-invalid @enderror" id="profesion" name="profesion" type="text" maxlength="100" value="{{ old('profesion', data_get($usuario, 'especialista.profesion')) }}" autocomplete="organization-title">
+            @error('profesion')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            <div class="form-text">Ejemplo: Fisioterapeuta.</div>
+        </div>
+    </div>
+
     <div class="form-action-bar">
         <div class="text-secondary small">
             <i class="bi bi-info-circle me-1"></i>
@@ -277,7 +297,7 @@
         </div>
 
         <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-light border" href="{{ url('/usuarios') }}">
+            <a class="btn btn-light border" href="{{ $modoEspecialista ? route('especialistas.index') : url('/usuarios') }}">
                 Cancelar
             </a>
 

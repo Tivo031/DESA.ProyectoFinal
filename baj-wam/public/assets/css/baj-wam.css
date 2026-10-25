@@ -1674,3 +1674,34 @@ table td.cita-estado-col .badge-status {
         break-inside: avoid;
     }
 }
+
+/* OPCIONES DEL BUSCADOR EN UNA SOLA LÍNEA *//* SELECTS CON BUSCADOR */
+.ts-wrapper {
+    width: 100%;
+}
+
+/* DESPLEGABLE MÁS ANCHO */
+.ts-dropdown {
+    width: max-content !important;
+    min-width: 100% !important;
+    max-width: min(90vw, 700px);
+}
+
+/* OPCIONES EN UNA SOLA LÍNEA */
+.ts-dropdown .option {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+/* TEXTO DEL CAMPO SELECCIONADO */
+.ts-control .item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* VALIDACIÓN DE TOM SELECT */
+.ts-wrapper.is-invalid .ts-control {
+    border-color: #dc3545;
+}

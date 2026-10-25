@@ -19,6 +19,8 @@ class SolicitudCita extends Model
         'id_cita',
         'nombre',
         'telefono',
+        'dpi',
+        'numero_expediente',
         'fecha',
         'hora',
         'comentario',

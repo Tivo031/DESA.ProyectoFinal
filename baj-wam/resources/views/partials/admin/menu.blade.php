@@ -12,6 +12,13 @@
 
     <div class="sidebar-label">Atención clínica</div>
 
+    @can('especialistas.ver')
+        <a class="nav-link {{ request()->is('especialistas*') ? 'active' : '' }}" href="{{ route('especialistas.index') }}">
+            <i class="bi bi-person-badge-fill"></i>
+            <span>Especialistas</span>
+        </a>
+    @endcan
+
     @can('pacientes.ver')
         <a class="nav-link {{ request()->is('pacientes*') ? 'active' : '' }}" href="{{ url('/pacientes') }}">
             <i class="bi bi-people-fill"></i>

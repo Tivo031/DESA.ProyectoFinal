@@ -15,6 +15,7 @@ use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\CatalogoController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EspecialistaController;
 
 // PÁGINA PÚBLICA
 
@@ -171,8 +172,38 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->middleware('can:permisos.desactivar')
             ->name('permisos.destroy');
 
+        // ESPECIALISTAS
+        Route::get('/especialistas', [EspecialistaController::class, 'index'])
+            ->middleware('can:especialistas.ver')
+            ->name('especialistas.index');
 
-        // PACIENTES
+        Route::get('/especialistas/create', [UsuarioController::class, 'createEspecialista'])
+            ->middleware('can:especialistas.crear')
+            ->name('especialistas.create');
+
+        Route::post('/especialistas', [UsuarioController::class, 'store'])
+            ->middleware('can:especialistas.crear')
+            ->name('especialistas.store');
+
+        Route::get('/especialistas/{especialista}', [EspecialistaController::class, 'show'])
+            ->middleware('can:especialistas.ver')
+            ->whereNumber('especialista')
+            ->name('especialistas.show');
+
+        Route::get('/especialistas/{id}/edit', [UsuarioController::class, 'editEspecialista'])
+            ->middleware('can:especialistas.editar')
+            ->whereNumber('id')
+            ->name('especialistas.edit');
+
+        Route::put('/especialistas/{id}', [UsuarioController::class, 'update'])
+            ->middleware('can:especialistas.editar')
+            ->whereNumber('id')
+            ->name('especialistas.update');
+
+        Route::patch('/especialistas/{especialista}/estado', [EspecialistaController::class, 'cambiarEstado'])
+            ->middleware('can:especialistas.desactivar')
+            ->whereNumber('especialista')
+            ->name('especialistas.estado');
 
         Route::get('/pacientes', [PacienteController::class, 'index'])
             ->middleware('can:pacientes.ver')
@@ -205,6 +236,10 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->middleware('can:pacientes.editar')
             ->whereNumber('id')
             ->name('pacientes.destroy');
+
+        Route::get('/pacientes/buscar', [PacienteController::class, 'buscar'])
+            ->middleware('can:pacientes.ver')
+            ->name('pacientes.buscar');
 
 
         // CITAS

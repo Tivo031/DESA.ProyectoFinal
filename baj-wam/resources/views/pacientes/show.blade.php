@@ -105,6 +105,18 @@
 
                         </div>
 
+                        <div class="col-md-6">
+
+                            <span class="detail-label">
+                                Número de expediente
+                            </span>
+
+                            <div class="fw-semibold">
+                                {{ $paciente->numero_expediente }}
+                            </div>
+
+                        </div>
+
 
                         <div class="col-md-6">
 

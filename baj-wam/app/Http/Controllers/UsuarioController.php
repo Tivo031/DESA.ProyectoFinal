@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Rol;
 use App\Models\Usuario;
+use App\Models\Especialista;
+use App\Models\Cita;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +15,7 @@ use Illuminate\Support\Str;
 use DomainException;
 use Throwable;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class UsuarioController extends Controller
 {
@@ -157,8 +160,24 @@ class UsuarioController extends Controller
         }
     }
 
+    public function createEspecialista()
+    {
+        $rolEspecialista = $this->rolEspecialistaActivo();
+
+        return view('usuarios.create', [
+            'roles' => collect([$rolEspecialista]),
+            'modoEspecialista' => true,
+        ]);
+    }
+
     public function store(Request $request)
     {
+        $modoEspecialista = $request->routeIs('especialistas.store');
+
+        if ($modoEspecialista) {
+            $request->merge(['id_rol' => $this->rolEspecialistaActivo()->id_rol]);
+        }
+
         $request->merge([
             'nombres' => trim((string) $request->input('nombres')),
             'apellidos' => trim((string) $request->input('apellidos')),
@@ -171,7 +190,10 @@ class UsuarioController extends Controller
             'usuario' => trim(
                 (string) $request->input('usuario')
             ),
+            'profesion' => trim((string) $request->input('profesion')),
         ]);
+
+        $idRolEspecialista = $this->idRolEspecialista();
 
         $datos = $request->validate(
             [
@@ -215,6 +237,13 @@ class UsuarioController extends Controller
                     'integer',
                     Rule::exists('roles', 'id_rol')
                         ->where('activo', true),
+                ],
+
+                'profesion' => [
+                    Rule::requiredIf((int) $request->input('id_rol') === $idRolEspecialista),
+                    'nullable',
+                    'string',
+                    'max:100',
                 ],
 
                 'password' => [
@@ -280,6 +309,8 @@ class UsuarioController extends Controller
 
                 'password.confirmed' =>
                     'Las contraseñas no coinciden.',
+                'profesion.required' => 'Debes ingresar la profesión del especialista.',
+                'profesion.max' => 'La profesión no puede superar los 100 caracteres.',
             ]
         );
 
@@ -294,7 +325,7 @@ class UsuarioController extends Controller
                     );
                 }
 
-                Usuario::create([
+                $usuario = Usuario::create([
                     'id_rol' => $rol->id_rol,
                     'nombres' => $datos['nombres'],
                     'apellidos' => $datos['apellidos'],
@@ -306,10 +337,18 @@ class UsuarioController extends Controller
                     ),
                     'activo' => $datos['activo'],
                 ]);
+
+                if ($rol->nombre === 'ESPECIALISTA') {
+                    Especialista::create([
+                        'id_usuario' => $usuario->id_usuario,
+                        'profesion' => $datos['profesion'],
+                        'activo' => (bool) $usuario->activo,
+                    ]);
+                }
             });
 
             return redirect()
-                ->route('usuarios.index')
+                ->route($modoEspecialista ? 'especialistas.index' : 'usuarios.index')
                 ->with(
                     'success',
                     'El usuario fue creado correctamente.'
@@ -459,8 +498,28 @@ class UsuarioController extends Controller
         }
     }
 
+    public function editEspecialista($id)
+    {
+        $usuario = Usuario::with(['rol', 'especialista'])->findOrFail($id);
+        $rolEspecialista = $this->rolEspecialistaActivo();
+
+        abort_unless($usuario->id_rol === $rolEspecialista->id_rol, 404);
+
+        return view('usuarios.edit', [
+            'usuario' => $usuario,
+            'roles' => collect([$rolEspecialista]),
+            'modoEspecialista' => true,
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
+        $modoEspecialista = $request->routeIs('especialistas.update');
+
+        if ($modoEspecialista) {
+            $request->merge(['id_rol' => $this->rolEspecialistaActivo()->id_rol]);
+        }
+
         $usuario = Usuario::findOrFail($id);
 
         $request->merge([
@@ -475,7 +534,10 @@ class UsuarioController extends Controller
             'usuario' => trim(
                 (string) $request->input('usuario')
             ),
+            'profesion' => trim((string) $request->input('profesion')),
         ]);
+
+        $idRolEspecialista = $this->idRolEspecialista();
 
         // REGLAS
 
@@ -529,6 +591,13 @@ class UsuarioController extends Controller
                 Rule::exists('roles', 'id_rol')
                     ->where('activo', true),
             ],
+
+            'profesion' => [
+                Rule::requiredIf((int) $request->input('id_rol') === $idRolEspecialista),
+                'nullable',
+                'string',
+                'max:100',
+            ],
         ];
 
         // VALIDAR EDICIÓN DE CUENTA PROPIA
@@ -540,6 +609,12 @@ class UsuarioController extends Controller
             return back()
                 ->withInput()
                 ->with('error', 'No puedes cambiar el rol de tu propia cuenta.');
+        }
+
+        if ($esCuentaPropia && $request->has('activo') && !$request->boolean('activo')) {
+            return back()
+                ->withInput()
+                ->with('error', 'No puedes desactivar tu propia cuenta.');
         }
 
         // PERMISO PARA CAMBIAR ESTADO
@@ -601,6 +676,8 @@ class UsuarioController extends Controller
 
                 'id_rol.exists' =>
                     'El rol seleccionado no es válido.',
+                'profesion.required' => 'Debes ingresar la profesión del especialista.',
+                'profesion.max' => 'La profesión no puede superar los 100 caracteres.',
                 'activo.required' =>
                     'No es posible modificar el estado de tu propia cuenta. Por seguridad, esta acción debe realizarla otro usuario autorizado.',
 
@@ -625,6 +702,7 @@ class UsuarioController extends Controller
 
                 $usuarioBloqueado = Usuario::lockForUpdate()
                     ->findOrFail($id);
+                $rolAnterior = Rol::lockForUpdate()->findOrFail($usuarioBloqueado->id_rol);
 
                 $seDesactiva = $puedeCambiarEstado
                     && !(bool) $datos['activo'];
@@ -654,6 +732,19 @@ class UsuarioController extends Controller
                     );
                 }
 
+                $eraEspecialista = $rolAnterior->nombre === 'ESPECIALISTA';
+                $seraEspecialista = $rolSeleccionado->nombre === 'ESPECIALISTA';
+                $especialista = ($eraEspecialista || $seraEspecialista)
+                    ? Especialista::query()->where('id_usuario', $usuarioBloqueado->id_usuario)->lockForUpdate()->first()
+                    : null;
+
+                if ($eraEspecialista && ($seDesactiva || !$seraEspecialista)
+                    && $especialista && $this->tieneCitasFuturasActivas($especialista)) {
+                    throw new DomainException(
+                        'No se puede cambiar el rol ni desactivar al especialista porque tiene citas futuras activas.'
+                    );
+                }
+
                 $usuarioBloqueado->nombres = $datos['nombres'];
                 $usuarioBloqueado->apellidos = $datos['apellidos'];
                 $usuarioBloqueado->correo = $datos['correo'];
@@ -666,15 +757,34 @@ class UsuarioController extends Controller
                 }
 
                 $usuarioBloqueado->save();
+
+                if ($seraEspecialista) {
+                    if ($especialista) {
+                        $especialista->update([
+                            'profesion' => $datos['profesion'],
+                            'activo' => (bool) $usuarioBloqueado->activo,
+                        ]);
+                    } else {
+                        Especialista::create([
+                            'id_usuario' => $usuarioBloqueado->id_usuario,
+                            'profesion' => $datos['profesion'],
+                            'activo' => (bool) $usuarioBloqueado->activo,
+                        ]);
+                    }
+                } elseif ($especialista) {
+                    $especialista->update(['activo' => false]);
+                }
             });
 
             return redirect()
-                ->route('usuarios.index')
+                ->route($modoEspecialista ? 'especialistas.index' : 'usuarios.index')
                 ->with(
                     'success',
                     'El usuario fue actualizado correctamente.'
                 );
 
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (DomainException $e) {
             return back()
                 ->withInput()
@@ -708,6 +818,10 @@ class UsuarioController extends Controller
             $resultado = DB::transaction(function () use ($request, $id) {
                 $usuario = Usuario::lockForUpdate()
                     ->findOrFail($id);
+                $esEspecialista = $usuario->rol()->where('nombre', 'ESPECIALISTA')->exists();
+                $especialista = $esEspecialista
+                    ? Especialista::query()->where('id_usuario', $usuario->id_usuario)->lockForUpdate()->first()
+                    : null;
 
                 if (!$usuario->activo) {
                     return 'inactivo';
@@ -734,8 +848,18 @@ class UsuarioController extends Controller
                     );
                 }
 
+                if ($especialista && $this->tieneCitasFuturasActivas($especialista)) {
+                    throw new DomainException(
+                        'No se puede desactivar al especialista porque tiene citas futuras activas.'
+                    );
+                }
+
                 $usuario->activo = false;
                 $usuario->save();
+
+                if ($especialista) {
+                    $especialista->update(['activo' => false]);
+                }
 
                 return 'desactivado';
             });
@@ -808,5 +932,31 @@ class UsuarioController extends Controller
         return $rolAdministrador
             && $usuario->activo
             && $usuario->id_rol === $rolAdministrador->id_rol;
+    }
+
+    private function rolEspecialistaActivo(): Rol
+    {
+        return Rol::query()
+            ->where('nombre', 'ESPECIALISTA')
+            ->where('activo', true)
+            ->firstOrFail();
+    }
+
+    private function idRolEspecialista(): int
+    {
+        return (int) (Rol::query()
+            ->where('nombre', 'ESPECIALISTA')
+            ->where('activo', true)
+            ->value('id_rol') ?? 0);
+    }
+
+    private function tieneCitasFuturasActivas(Especialista $especialista): bool
+    {
+        return Cita::query()
+            ->where('id_especialista', $especialista->id_especialista)
+            ->where('inicio', '>=', now())
+            ->whereHas('estado', fn ($estado) => $estado->where('codigo', '!=', 'CANCELADA'))
+            ->lockForUpdate()
+            ->exists();
     }
 }

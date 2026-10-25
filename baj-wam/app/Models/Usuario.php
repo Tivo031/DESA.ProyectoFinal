@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Usuario extends Authenticatable
 {
@@ -45,6 +46,11 @@ class Usuario extends Authenticatable
             'id_rol',
             'id_rol'
         );
+    }
+
+    public function especialista(): HasOne
+    {
+        return $this->hasOne(Especialista::class, 'id_usuario', 'id_usuario');
     }
 
     public function tienePermiso(string $codigo): bool

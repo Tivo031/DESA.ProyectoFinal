@@ -80,7 +80,7 @@
                     type="search"
                     name="buscar"
                     class="form-control"
-                    placeholder="Buscar por nombre o teléfono"
+                    placeholder="Buscar por nombre, teléfono o DPI"
                     value="{{ request('buscar') }}"
                 >
 

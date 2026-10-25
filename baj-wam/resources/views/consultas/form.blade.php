@@ -78,11 +78,12 @@
 
                             <select
                                 class="form-select
-                                    @error('id_cita')
-                                        is-invalid
-                                    @enderror"
-                                id="id_cita" name="id_cita">
-                                <option value="">
+                                @error('id_cita')
+                                    is-invalid
+                                @enderror"
+                                id="id_cita" name="id_cita" data-buscador placeholder="Seleccionar cita">
+
+                                <option value="" disabled>
                                     Seleccionar cita
                                 </option>
 
@@ -350,10 +351,12 @@
 
                                         <select
                                             class="form-select
-                                                @error('productos.' . $indice . '.id_producto')
-                                                    is-invalid
-                                                @enderror"
-                                            name="productos[{{ $indice }}][id_producto]">
+                                            @error('productos.' . $indice . '.id_producto')
+                                                is-invalid
+                                            @enderror"
+                                            name="productos[{{ $indice }}][id_producto]" data-buscador
+                                            placeholder="Seleccionar producto">
+
                                             <option value="">
                                                 Seleccionar producto
                                             </option>
@@ -361,6 +364,7 @@
                                             @foreach ($productos as $producto)
                                                 <option value="{{ $producto->id_producto }}"
                                                     @selected((string) data_get($seleccionado, 'id_producto') === (string) $producto->id_producto)>
+
                                                     {{ $producto->codigo }}
                                                     ·
                                                     {{ $producto->nombre }}
@@ -368,6 +372,7 @@
                                                     @if ($producto->presentacion)
                                                         ({{ $producto->presentacion }})
                                                     @endif
+
                                                 </option>
                                             @endforeach
 
@@ -421,8 +426,7 @@
                                                     is-invalid
                                                 @enderror"
                                             name="productos[{{ $indice }}][indicaciones]" type="text"
-                                            maxlength="500"
-                                            value="{{ data_get($seleccionado, 'indicaciones') }}"
+                                            maxlength="500" value="{{ data_get($seleccionado, 'indicaciones') }}"
                                             placeholder="Ej. Tomar una vez al día">
 
                                         <div class="invalid-feedback">
@@ -469,7 +473,9 @@
                                         Producto
                                     </label>
 
-                                    <select class="form-select" name="productos[__INDEX__][id_producto]">
+                                    <select class="form-select" name="productos[__INDEX__][id_producto]" data-buscador
+                                        placeholder="Seleccionar producto">
+
                                         <option value="">
                                             Seleccionar producto
                                         </option>

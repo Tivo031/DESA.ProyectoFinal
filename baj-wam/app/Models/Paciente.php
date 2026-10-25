@@ -57,4 +57,9 @@ class Paciente extends Model
     {
         return trim($this->nombres . ' ' . $this->apellidos);
     }
+
+    public function getNumeroExpedienteAttribute(): string
+    {
+        return 'PAC-' . str_pad((string) $this->id_paciente, 6, '0', STR_PAD_LEFT);
+    }
 }

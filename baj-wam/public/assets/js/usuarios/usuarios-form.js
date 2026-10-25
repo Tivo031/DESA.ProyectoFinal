@@ -19,6 +19,22 @@ document.addEventListener("DOMContentLoaded", () => {
         password_confirmation: document.getElementById(
             "password_confirmation"
         ),
+        profesion: document.getElementById("profesion"),
+    };
+
+    const seccionEspecialista = document.getElementById("seccionEspecialista");
+
+    const esRolEspecialista = () => {
+        const opcion = campos.id_rol?.options?.[campos.id_rol.selectedIndex];
+        return opcion?.dataset.especialista === "1" || seccionEspecialista?.dataset.forzado === "1";
+    };
+
+    const actualizarSeccionEspecialista = () => {
+        if (!seccionEspecialista || !campos.profesion) {
+            return;
+        }
+
+        seccionEspecialista.classList.toggle("d-none", !esRolEspecialista());
     };
 
 
@@ -261,6 +277,11 @@ document.addEventListener("DOMContentLoaded", () => {
             valido = false;
         }
 
+        if (esRolEspecialista() && campos.profesion.value.trim() === "") {
+            mostrarError(campos.profesion, "Debes ingresar la profesión del especialista.");
+            valido = false;
+        }
+
 
         // CONTRASEÑA
 
@@ -340,6 +361,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
     });
+
+    campos.id_rol?.addEventListener("change", actualizarSeccionEspecialista);
+    actualizarSeccionEspecialista();
 
 
     // ENVÍO DEL FORMULARIO
