@@ -208,7 +208,7 @@ class SolicitudCitaController extends Controller
             'id_paciente' => ['nullable', 'required_if:tipo_paciente,existente', 'integer', 'exists:pacientes,id_paciente'],
             'nombres' => ['nullable', 'required_if:tipo_paciente,nuevo', 'string', 'max:80'],
             'apellidos' => ['nullable', 'required_if:tipo_paciente,nuevo', 'string', 'max:80'],
-            'telefono' => ['nullable', 'required_if:tipo_paciente,nuevo', 'string', 'min:8', 'max:20', 'regex:/^[0-9]+$/'],
+            'telefono' => ['nullable', 'required_if:tipo_paciente,nuevo', 'string', 'min:8', 'max:20', 'regex:/^\d{4}-\d{4}$/'],
             'dpi' => ['nullable', 'digits:13'],
             'confirmar_identidad' => ['sometimes', 'accepted'],
             'resolver_identificadores' => ['sometimes', 'accepted'],

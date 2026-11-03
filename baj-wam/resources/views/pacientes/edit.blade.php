@@ -204,6 +204,38 @@
 
                     </div>
 
+                    {{-- ESTADO DEL PACIENTE --}}
+                    <div class="col-12">
+                        <div class="status-switch-panel">
+                            <div>
+                                <div class="fw-bold">
+                                    {{ old('activo', $paciente->activo) ? 'Paciente activo' : 'Paciente inactivo' }}
+                                </div>
+
+                                <div class="text-secondary small">
+                                    El historial clínico se conserva aunque el paciente
+                                    sea desactivado.
+                                </div>
+                            </div>
+
+                            <div class="form-check form-switch m-0">
+                                <input type="hidden" name="activo" value="0">
+
+                                <input class="form-check-input" id="activo" name="activo" type="checkbox"
+                                    role="switch" value="1" @checked((bool) old('activo', $paciente->activo))>
+
+                                <label class="visually-hidden" for="activo">
+                                    Paciente activo
+                                </label>
+                            </div>
+                        </div>
+
+                        @error('activo')
+                            <div class="text-danger small mt-1">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2 mt-4">

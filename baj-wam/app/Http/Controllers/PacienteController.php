@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Throwable;
+use Illuminate\Support\Facades\DB;
 
 class PacienteController extends Controller
 {
@@ -295,9 +296,10 @@ class PacienteController extends Controller
             'apellidos' => ['required', 'string', 'max:80'],
             'fecha_nacimiento' => ['nullable', 'date', 'before_or_equal:today'],
             'sexo' => ['nullable', 'in:FEMENINO,MASCULINO,OTRO,NO_INDICA'],
-            'telefono' => ['required', 'string', 'min:8', 'max:20', 'regex:/^[0-9]+$/'],
+            'telefono' => ['required', 'string', 'min:8', 'max:20', 'regex:/^\d{4}-\d{4}$/'],
             'correo' => ['nullable', 'email', 'max:120'],
             'direccion' => ['nullable', 'string', 'max:250'],
+            'activo' => ['required', 'boolean'],
         ], [
             'dpi.digits' => 'El DPI debe contener exactamente 13 números.',
             'dpi.unique' => 'Ya existe otro paciente con este DPI.',
@@ -306,16 +308,31 @@ class PacienteController extends Controller
             'fecha_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser futura.',
             'telefono.required' => 'Debes ingresar un número de teléfono.',
             'telefono.min' => 'El teléfono debe tener al menos 8 números.',
-            'telefono.regex' => 'El teléfono solo puede contener números.',
+            'telefono.regex' => 'El teléfono debe tener el formato 5555-5555.',
             'correo.email' => 'Ingresa un correo electrónico válido.',
+            'activo.required' => 'Debes indicar el estado del paciente.',
+            'activo.boolean' => 'El estado del paciente no es válido.',
         ]);
 
         try {
-            $paciente->update($datos);
+        DB::transaction(function () use ($id, $datos) {
 
-            return redirect()
-                ->route('pacientes.show', $paciente->id_paciente)
-                ->with('success', 'Paciente actualizado correctamente.');
+            // BLOQUEAR REGISTRO
+            $paciente = Paciente::lockForUpdate()
+                ->findOrFail($id);
+
+            // ACTUALIZAR DATOS Y ESTADO
+            $paciente->fill($datos);
+            $paciente->activo = (bool) $datos['activo'];
+            $paciente->save();
+        });
+
+        return redirect()
+            ->route('pacientes.index')
+            ->with(
+                'success',
+                'Paciente actualizado correctamente.'
+            );
 
         } catch (Throwable $e) {
             Log::error('Error al actualizar paciente.', [
