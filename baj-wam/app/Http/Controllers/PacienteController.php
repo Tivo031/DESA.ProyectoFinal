@@ -295,7 +295,7 @@ class PacienteController extends Controller
             'apellidos' => ['required', 'string', 'max:80'],
             'fecha_nacimiento' => ['nullable', 'date', 'before_or_equal:today'],
             'sexo' => ['nullable', 'in:FEMENINO,MASCULINO,OTRO,NO_INDICA'],
-            'telefono' => ['required', 'string', 'min:8', 'max:20', 'regex:/^[0-9]+$/'],
+            'telefono' => ['required', 'string', 'min:8', 'max:20', 'regex:/^\d{4}-\d{4}$/'],
             'correo' => ['nullable', 'email', 'max:120'],
             'direccion' => ['nullable', 'string', 'max:250'],
         ], [
@@ -306,7 +306,7 @@ class PacienteController extends Controller
             'fecha_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser futura.',
             'telefono.required' => 'Debes ingresar un número de teléfono.',
             'telefono.min' => 'El teléfono debe tener al menos 8 números.',
-            'telefono.regex' => 'El teléfono solo puede contener números.',
+            'telefono.regex' => 'El teléfono debe tener el formato 5555-5555.',
             'correo.email' => 'Ingresa un correo electrónico válido.',
         ]);
 
