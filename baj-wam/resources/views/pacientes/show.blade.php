@@ -33,27 +33,7 @@
             @endcan
 
 
-            @can('pacientes.editar')
-                <a href="{{ route('pacientes.edit', $paciente->id_paciente) }}" class="btn btn-brand">
-                    <i class="bi bi-pencil me-2"></i>
-                    Editar paciente
-                </a>
-
-
-                @if ($paciente->activo)
-                    <form method="POST" action="{{ route('pacientes.destroy', $paciente->id_paciente) }}">
-                        @csrf
-                        @method('DELETE')
-
-                        <button type="submit" class="btn btn-outline-danger"
-                            data-confirm-delete="El paciente quedará inactivo. ¿Deseas continuar?">
-                            <i class="bi bi-person-x me-2"></i>
-                            Desactivar
-                        </button>
-
-                    </form>
-                @endif
-            @endcan
+            @include('pacientes.partials.acciones', ['modo' => 'detalle', 'mostrarVer' => false])
 
         </div>
 

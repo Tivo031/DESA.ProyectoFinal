@@ -240,39 +240,7 @@
 
                             <td class="text-end text-nowrap">
 
-                                <div class="table-actions justify-content-end">
-
-                                    @can('pacientes.ver')
-                                        <a href="{{ route('pacientes.show', $paciente->id_paciente) }}"
-                                            class="btn btn-sm btn-light border" title="Ver paciente">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                    @endcan
-
-                                    @can('pacientes.editar')
-                                        <a href="{{ route('pacientes.edit', $paciente->id_paciente) }}"
-                                            class="btn btn-sm btn-light border" title="Editar paciente">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-
-                                        @if ($paciente->activo)
-                                            <form method="POST"
-                                                action="{{ route('pacientes.destroy', $paciente->id_paciente) }}"
-                                                class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-
-                                                <button type="submit" class="btn btn-sm btn-light border text-danger"
-                                                    title="Desactivar paciente"
-                                                    data-confirm-delete="El paciente quedará inactivo. ¿Deseas continuar?">
-                                                    <i class="bi bi-person-x"></i>
-                                                </button>
-
-                                            </form>
-                                        @endif
-                                    @endcan
-
-                                </div>
+                                @include('pacientes.partials.acciones', ['modo' => 'tabla'])
 
                             </td>
 
@@ -407,44 +375,9 @@
 
 
                         {{-- ACCIONES --}}
-                        @canany(['pacientes.ver', 'pacientes.editar'])
+                        @canany(['pacientes.ver', 'pacientes.editar', 'pacientes.desactivar'])
                             <hr>
-
-                            <div class="d-flex gap-2">
-
-                                @can('pacientes.ver')
-                                    <a href="{{ route('pacientes.show', $paciente->id_paciente) }}"
-                                        class="btn btn-light border flex-grow-1">
-                                        <i class="bi bi-eye me-1"></i>
-                                        Ver
-                                    </a>
-                                @endcan
-
-                                @can('pacientes.editar')
-                                    <a href="{{ route('pacientes.edit', $paciente->id_paciente) }}"
-                                        class="btn btn-light border flex-grow-1">
-                                        <i class="bi bi-pencil me-1"></i>
-                                        Editar
-                                    </a>
-
-                                    @if ($paciente->activo)
-                                        <form method="POST" action="{{ route('pacientes.destroy', $paciente->id_paciente) }}"
-                                            class="flex-grow-1">
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button type="submit" class="btn btn-light border text-danger w-100"
-                                                title="Desactivar paciente"
-                                                data-confirm-delete="El paciente quedará inactivo. ¿Deseas continuar?">
-                                                <i class="bi bi-person-x me-1"></i>
-                                                Desactivar
-                                            </button>
-
-                                        </form>
-                                    @endif
-                                @endcan
-
-                            </div>
+                            @include('pacientes.partials.acciones', ['modo' => 'movil'])
                         @endcanany
 
                     </div>
