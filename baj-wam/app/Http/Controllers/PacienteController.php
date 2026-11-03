@@ -6,6 +6,7 @@ use App\Models\Paciente;
 use App\Models\Especialista;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Throwable;
 
@@ -329,33 +330,45 @@ class PacienteController extends Controller
         }
     }
 
+    public function cambiarEstado(Request $request, Paciente $paciente)
+    {
+        $datos = $request->validate([
+            'activo' => ['required', 'boolean'],
+        ], [
+            'activo.required' => 'Debes indicar el estado del paciente.',
+            'activo.boolean' => 'El estado debe ser activo o inactivo.',
+        ]);
+
+        return $this->guardarEstado($paciente, (bool) $datos['activo']);
+    }
+
     public function destroy($id)
     {
+        return $this->guardarEstado(Paciente::findOrFail($id), false);
+    }
+
+    public function activar($id)
+    {
+        return $this->guardarEstado(Paciente::findOrFail($id), true);
+    }
+
+    private function guardarEstado(Paciente $paciente, bool $activo)
+    {
+        Gate::authorize('pacientes.desactivar');
+
         try {
-            $paciente = Paciente::findOrFail($id);
+            $paciente->update(['activo' => $activo]);
 
-            if (!$paciente->activo) {
-                return redirect()
-                    ->route('pacientes.index')
-                    ->with('error', 'El paciente ya se encuentra inactivo.');
-            }
-
-            $paciente->update([
-                'activo' => false,
-            ]);
-
-            return redirect()
-                ->route('pacientes.index')
-                ->with('success', 'Paciente desactivado correctamente.');
-
+            return back()->with('success', $activo
+                ? 'Paciente activado correctamente.'
+                : 'Paciente desactivado correctamente.');
         } catch (Throwable $e) {
-            Log::error('Error al desactivar paciente.', [
-                'id_paciente' => $id,
-                'codigo' => 'PACIENTE_DESACTIVACION_ERROR',
+            Log::error('Error al cambiar el estado del paciente.', [
+                'id_paciente' => $paciente->id_paciente,
+                'codigo' => 'PACIENTE_ESTADO_ERROR',
             ]);
 
-            return back()
-                ->with('error', 'No fue posible desactivar el paciente.');
+            return back()->with('error', 'No fue posible cambiar el estado del paciente.');
         }
     }
 

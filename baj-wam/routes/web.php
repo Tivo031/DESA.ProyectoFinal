@@ -232,10 +232,20 @@ Route::middleware(['auth', 'usuario.activo'])->group(function () {
             ->whereNumber('id')
             ->name('pacientes.update');
 
+        Route::patch('/pacientes/{paciente}/estado', [PacienteController::class, 'cambiarEstado'])
+            ->middleware('can:pacientes.desactivar')
+            ->whereNumber('paciente')
+            ->name('pacientes.estado');
+
         Route::delete('/pacientes/{id}', [PacienteController::class, 'destroy'])
-            ->middleware('can:pacientes.editar')
+            ->middleware('can:pacientes.desactivar')
             ->whereNumber('id')
             ->name('pacientes.destroy');
+
+        Route::patch('/pacientes/{id}/activar', [PacienteController::class, 'activar'])
+            ->middleware('can:pacientes.desactivar')
+            ->whereNumber('id')
+            ->name('pacientes.activar');
 
         Route::get('/pacientes/buscar', [PacienteController::class, 'buscar'])
             ->middleware('can:pacientes.ver')
